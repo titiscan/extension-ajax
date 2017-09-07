@@ -44,9 +44,9 @@ release-type: ${releaseType}
   </target>
   <target name="zip" depends="createManifest" description="generate the distribution" >
     
-
+   
     <!-- copy the logo -->
-    <copy todir="${temp}/META-INF">
+    <copy todir="${temp}/META-INF/">
       <fileset dir="${srcImg}/">
         <include name="logo.png"/>
       </fileset>
@@ -61,6 +61,10 @@ release-type: ${releaseType}
         <include name="**/*.css"/>
       </fileset>
     </copy>
+    
+
+    <loadfile property="content1" srcFile="${src}/tlds/main.tldx" />
+    <echo message="${content1}" file="${temp}/tlds/Ajax_Tags.tldx"/>
 
     <!-- copy the components
     <copy todir="${temp}/components">
