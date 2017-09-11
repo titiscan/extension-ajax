@@ -9,6 +9,7 @@
   <property name="src" location="source"/>
   <property name="srcTags" location="source/tags"/>
   <property name="srcImg" location="source/images"/>
+  <property name="srcFun" location="source/functions"/>
   <property name="jars" location="jars"/>
   <property name="temp" location="temp"/>
   <property name="target"  location="target"/>
@@ -61,10 +62,22 @@ release-type: ${releaseType}
         <include name="**/*.css"/>
       </fileset>
     </copy>
+
+    <!-- copy the Functions -->
+
+     <copy todir="${temp}/functions">
+      <fileset dir="${srcFun}">
+        <include name="**/*.cfc"/>
+        <include name="**/*.cfm"/>
+        <include name="**/*.js"/>
+        <include name="**/*.css"/>
+      </fileset>
+    </copy>
+
     
 
-    <loadfile property="content1" srcFile="${src}/tlds/main.tldx" />
-    <echo message="${content1}" file="${temp}/tlds/Ajax_Tags.tldx"/>
+    <!-- <loadfile property="content1" srcFile="${src}/tlds/main.tldx" />
+    <echo message="${content1}" file="${temp}/tlds/Ajax_Tags.tldx"/> -->
 
     <!-- copy the components
     <copy todir="${temp}/components">
