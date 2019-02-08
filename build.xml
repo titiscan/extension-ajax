@@ -74,9 +74,6 @@ release-type: ${releaseType}
     </copy>
     
 
-    <loadfile property="content1" srcFile="${src}/tlds/main.tldx" />
-    <echo message="${content1}" file="${temp}/tlds/Ajax_Tags.tldx"/>
-
     <!-- copy the components
     <copy todir="${temp}/components">
       <fileset dir="${src}/components">
