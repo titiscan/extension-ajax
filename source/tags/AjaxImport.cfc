@@ -1,4 +1,4 @@
-<cfcomponent extends="lucee.core.ajax.AjaxBase">
+<cfcomponent extends="lucee.core.ajax.AjaxBase" output="no">
 	
 	<cfset variables.tags = 'CFAJAXPROXY,CFDIV,CFWINDOW,CFMAP,CFMENU' />
 	
@@ -13,15 +13,15 @@
 		params :    {required:false,type:"struct",default:{},hint=""}
 	}>
          
-    <cffunction name="init" output="no" returntype="void" hint="invoked after tag is constructed">
+    <cffunction name="init" returntype="void" hint="invoked after tag is constructed">
     	<cfargument name="hasEndTag" type="boolean" required="yes">
-      	<cfargument name="parent" type="component" required="no" hint="the parent cfc custom tag, if there is one">
-  	</cffunction> 
+      	<cfargument name="parent" type="component" required="no" hint="the parent cfc custom tag, if there is one"><!---
+  	---></cffunction> 
     
-    <cffunction name="onStartTag" output="no" returntype="boolean">
+    <cffunction name="onStartTag" returntype="boolean">
    		<cfargument name="attributes" type="struct">
-   		<cfargument name="caller" type="struct">
-		
+   		<cfargument name="caller" type="struct"><cfsilent>
+			
       	<cfset var opts = {} />
 		
 		<!--- init the base ajax class --->
@@ -42,7 +42,7 @@
 		
 		<cfset opts.params = attributes.params />
 				
-      	<cfset super.init(argumentCollection:opts)/>
+      	</cfsilent><cfset super.init(argumentCollection:opts)/><cfsilent>
   
 		<!--- check --->
 		<cfloop list="#attributes.tags#" index="el">
@@ -51,27 +51,27 @@
 			</cfif>	
 		</cfloop>
 		
-        <cfset doImport(argumentCollection=arguments) />
+        </cfsilent><cfset doImport(argumentCollection=arguments) /><!---
         
-        <cfreturn false>
-    </cffunction>
+        ----><cfreturn false><!---
+    ---></cffunction>
 	
-    <cffunction name="doImport" output="no" returntype="void">
+    <cffunction name="doImport" returntype="void">
    		<cfargument name="attributes" type="struct">
-   		<cfargument name="caller" type="struct">
+   		<cfargument name="caller" type="struct"><!---
    		
-		<cfset var js = "" />		
+		----><cfset var js = "" /><!---	
 	
-   		<cfif len(attributes.tags)>
-			<cfsavecontent variable="js"><cfoutput>
+   		---><cfif len(attributes.tags)><!---
+			---><cfsavecontent variable="js"><cfoutput>
 			<script type="text/javascript">
 			<cfloop list="#attributes.tags#" index="el">Lucee.Ajax.importTag('#el#');
 			</cfloop>
 			</script>		
 			</cfoutput>
-			</cfsavecontent>
-			<cfset writeHeader(js,'_import_#el#') />
-		</cfif>
-	</cffunction>
+			</cfsavecontent><!---
+			---><cfset writeHeader(js,'_import_#el#') /><!---
+		---></cfif><!---
+	---></cffunction>
 		
 </cfcomponent>

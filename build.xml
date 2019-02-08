@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project default="clean" basedir="." name="cfcamp2016-extension">
+<project default="clean" basedir="." name="ajax-extension">
 	<description>Lucee Ajax Extension</description>
 
   <!-- load the build.properties -->
@@ -8,6 +8,7 @@
   <!-- path defintions -->
   <property name="src" location="source"/>
   <property name="srcTags" location="source/tags"/>
+  <property name="srcFunctions" location="source/functions"/>
   <property name="srcImg" location="source/images"/>
   <property name="jars" location="jars"/>
   <property name="temp" location="temp"/>
@@ -55,6 +56,16 @@ release-type: ${releaseType}
     <!-- copy the tags -->
     <copy todir="${temp}/tags">
       <fileset dir="${srcTags}">
+        <include name="**/*.cfc"/>
+        <include name="**/*.cfm"/>
+        <include name="**/*.js"/>
+        <include name="**/*.css"/>
+      </fileset>
+    </copy>
+
+    <!-- copy the functions -->
+    <copy todir="${temp}/functions">
+      <fileset dir="${srcFunctions}">
         <include name="**/*.cfc"/>
         <include name="**/*.cfm"/>
         <include name="**/*.js"/>

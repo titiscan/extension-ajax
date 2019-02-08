@@ -1,4 +1,4 @@
-<cfcomponent extends="lucee.core.ajax.AjaxBase">
+<cfcomponent extends="lucee.core.ajax.AjaxBase" output="no">
 
 	<cfset variables.instance.ajaxBinder = createObject('component','lucee.core.ajax.AjaxBinder').init() />
 
@@ -15,16 +15,16 @@
 		tagName:	{required:false,type:"string",default:"div",hint="The HTML container tag to create."}
 	}/>
          
-    <cffunction name="init" output="no" returntype="void" hint="invoked after tag is constructed">
+    <cffunction name="init" returntype="void" hint="invoked after tag is constructed">
     	<cfargument name="hasEndTag" type="boolean" required="yes">
-      	<cfargument name="parent" type="component" required="no" hint="the parent cfc custom tag, if there is one">
-		<cfset variables.hasEndTag = arguments.hasEndTag />
-		<cfset super.init() />
-  	</cffunction> 
+      	<cfargument name="parent" type="component" required="no" hint="the parent cfc custom tag, if there is one"><!---
+		---><cfset variables.hasEndTag = arguments.hasEndTag /><!----
+		----><cfset super.init() /><!----
+  	----></cffunction> 
     
-    <cffunction name="onStartTag" output="yes" returntype="boolean">
+    <cffunction name="onStartTag" returntype="boolean">
    		<cfargument name="attributes" type="struct">
-   		<cfargument name="caller" type="struct">				
+   		<cfargument name="caller" type="struct"><cfsilent>			
 
 		<!--- check --->
     	<cfset var hasBindError=len(trim(attributes.onBindError))>
@@ -36,15 +36,13 @@
         </cfif>
 		<!--- Don't bind if the argument is not provided, just render the tag. 
 			  Function doBind will validate the bind expression if provided ---> 
-        <cfif IsDefined("attributes.bind")>
-			<cfset doBind(argumentCollection=arguments) />
-		</cfif>
-		<cfoutput><#attributes.tagname# id="#attributes.id#"></cfoutput>
+        </cfsilent><cfif IsDefined("attributes.bind")><cfset doBind(argumentCollection=arguments) /></cfif><!---
+		---><cfoutput><#attributes.tagname# id="#attributes.id#"></cfoutput>
 		<cfif not variables.hasEndTag>
 			<cfoutput></#attributes.tagname#></cfoutput>
-		</cfif>
-	    <cfreturn variables.hasEndTag>   
-	</cffunction>
+		</cfif><!---
+	    ---><cfreturn variables.hasEndTag><!---   
+	----></cffunction>
 
     <cffunction name="onEndTag" output="yes" returntype="boolean">
    		<cfargument name="attributes" type="struct">
@@ -53,11 +51,10 @@
 			#arguments.generatedContent#</#attributes.tagname#>
 		<cfreturn false/>	
 	</cffunction>
-	
-	<!---doBind--->		   
-    <cffunction name="doBind" output="no" returntype="void">
+		   
+    <cffunction name="doBind" returntype="void">
    		<cfargument name="attributes" type="struct">
-   		<cfargument name="caller" type="struct">
+   		<cfargument name="caller" type="struct"><cfsilent>
 		
 		<cfset var js = "" />				
 		<cfset var bind = getAjaxBinder().parseBind(attributes.bind) />
@@ -69,16 +66,16 @@
 		<cfset bind['listener'] = "Lucee.Ajax.innerHtml" />
 		<cfset bind['errorHandler'] = attributes.onBindError />
 		<cfset rand = "_Lucee_Bind_#randRange(1,99999999)#" />
-		<cfsavecontent variable="js"><cfoutput>
+		</cfsilent><cfsavecontent variable="js"><cfoutput>
 		<script type="text/javascript">
 		#rand# = function(){
 			Lucee.Bind.register('#attributes.id#',#serializeJson(bind)#,#attributes.bindOnLoad#);
 		}		
 		Lucee.Events.subscribe(#rand#,'onLoad');	
 		</script>		
-		</cfoutput></cfsavecontent> 
-		<cfset writeHeader(js,'#rand#') />				
-	</cffunction>
+		</cfoutput></cfsavecontent><!--- 
+		---><cfset writeHeader(js,'#rand#') /><!---			
+	---></cffunction>
 
 	<!--- Private --->	
 	<!--- getAjaxBinder --->

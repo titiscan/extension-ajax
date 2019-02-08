@@ -1,4 +1,4 @@
-<cfcomponent extends="lucee.core.ajax.AjaxBase">
+<cfcomponent extends="lucee.core.ajax.AjaxBase" output="no">
 
 	<cfset variables.instance.proxyHelper = createObject('component','lucee.core.ajax.AjaxProxyHelper').init() />
 	<cfset variables.instance.ajaxBinder = createObject('component','lucee.core.ajax.AjaxBinder').init() />
@@ -16,16 +16,16 @@
 		methods:	{required:false,type:"string",default:"",hint="Comma delimited list of methods name. If exists only the method ( if remote ) specified will be exposed in the proxy object."}
 	}>
 
-    <cffunction name="init" output="no" returntype="void"
+    <cffunction name="init" returntype="void"
       hint="invoked after tag is constructed">
     	<cfargument name="hasEndTag" type="boolean" required="yes">
-      	<cfargument name="parent" type="component" required="no" hint="the parent cfc custom tag, if there is one">
-      	<cfset super.init() />
-  	</cffunction>
+      	<cfargument name="parent" type="component" required="no" hint="the parent cfc custom tag, if there is one"><!---
+      	---><cfset super.init() /><!---
+  	---></cffunction>
 
-    <cffunction name="onStartTag" output="no" returntype="boolean">
+    <cffunction name="onStartTag" returntype="boolean">
    		<cfargument name="attributes" type="struct">
-   		<cfargument name="caller" type="struct">
+   		<cfargument name="caller" type="struct"><cfsilent>
 
 		<!--- check --->
     	<cfset var hasCFC=len(trim(attributes.cfc))>
@@ -36,28 +36,28 @@
         	<cfthrow message="you must define at least one of the following attributes [cfc,bind]">
         </cfif>
 
-        <cfif hasCFC>
-        	<cfif len(trim(attributes.onError))>
-        		<cfthrow message="in this context attribute [onError] is not allowed">
-        	<cfelseif len(trim(attributes.onSuccess))>
-        		<cfthrow message="in this context attribute [onSuccess] is not allowed">
-        	</cfif>
-        	<cfset doCFC(argumentCollection:arguments)>
-        <cfelse>
-        	<cfif len(trim(attributes.jsclassname))>
-        		<cfthrow message="in this context attribute [jsclassname] is not allowed">
-        	<cfelseif len(trim(attributes.methods))>
-        		<cfthrow message="in this context attribute [methods] is not allowed">
-        	</cfif>
-        	<cfset doBind(argumentCollection:arguments)>
-        </cfif>
+        </cfsilent><cfif hasCFC><!---
+        	---><cfif len(trim(attributes.onError))><!---
+        		---><cfthrow message="in this context attribute [onError] is not allowed"><!---
+        	---><cfelseif len(trim(attributes.onSuccess))><!---
+        		---><cfthrow message="in this context attribute [onSuccess] is not allowed"><!---
+        	---></cfif><!---
+        	---><cfset doCFC(argumentCollection:arguments)><!---
+        ---><cfelse><!---
+        	---><cfif len(trim(attributes.jsclassname))><!---
+        		---><cfthrow message="in this context attribute [jsclassname] is not allowed"><!---
+        	---><cfelseif len(trim(attributes.methods))><!---
+        		---><cfthrow message="in this context attribute [methods] is not allowed"><!---
+        	---></cfif><!---
+        	---><cfset doBind(argumentCollection:arguments)><!---
+        ---></cfif><!---
 
-        <cfreturn false>
-    </cffunction>
+        ---><cfreturn false><!---
+    ---></cffunction>
 
-    <cffunction name="doCFC" output="no" returntype="void">
+    <cffunction name="doCFC" returntype="void">
    		<cfargument name="attributes" type="struct">
-   		<cfargument name="caller" type="struct">
+   		<cfargument name="caller" type="struct"><cfsilent>
 
    		<cfset var ph = getProxyHelper() />
 		<cfset var js = "" />
@@ -72,7 +72,7 @@
 		<!--- get the cfc metadatas filtered by remote access only --->
 		<cfset meta = ph.parseMetaData(attributes.cfc,attributes.methods,attributes.extends) />
 
-		<cfsavecontent variable="js">
+		</cfsilent><cfsavecontent variable="js">
 			<cfoutput>
 			<script type="text/javascript">
 			var _Lucee_#attributes.jsclassname# = Lucee.ajaxProxy.init('#cfcPath#','#attributes.jsClassName#');
@@ -80,19 +80,18 @@
 			</cfloop>
 			</script>
             </cfoutput>
-        </cfsavecontent>
-		<cfset writeHeader(js,'_Lucee_#attributes.jsclassname#') />
+        </cfsavecontent><cfset writeHeader(js,'_Lucee_#attributes.jsclassname#') /><!---
 
-	</cffunction>
+	---></cffunction>
 
-    <cffunction name="doBind" output="no" returntype="void">
+    <cffunction name="doBind" returntype="void">
    		<cfargument name="attributes" type="struct">
-   		<cfargument name="caller" type="struct">
+   		<cfargument name="caller" type="struct"><cfsilent>
 
 		<cfset bind = getAjaxBinder().parseBind(bindExpr=attributes.bind,listener=attributes.onSuccess,errorHandler=attributes.onError) />
 		<cfset rand = "_Lucee_Bind_#randRange(1,99999999)#" />
 
-		<cfsavecontent variable="js">
+		</cfsilent><cfsavecontent variable="js">
 			<cfoutput>
 			<script type="text/javascript">
 			#rand# = function(){
@@ -101,10 +100,9 @@
 			Lucee.Events.subscribe(#rand#,'onLoad');
 			</script>
             </cfoutput>
-        </cfsavecontent>
-		<cfset writeHeader(js,'#rand#') />
+        </cfsavecontent><cfset writeHeader(js,'#rand#') /><!---
 
-	</cffunction>
+	---></cffunction>
 
 
 	<!--- Private --->

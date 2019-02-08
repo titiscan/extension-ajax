@@ -1,4 +1,4 @@
-<cfcomponent name="ajaxBase">
+<cfcomponent name="ajaxBase" output="no">
 		
 	<!--- Instance vars --->
 	<cfset variables.instance = {} />
@@ -24,12 +24,12 @@
 	</cfif>
 		
 	<!--- Constructor --->
-    <cffunction name="init" output="no" returntype="void">
+    <cffunction name="init" returntype="void">
     	<cfargument name="scriptSrc" type="string" default="#variables.instance.SCRIPTSRC#" />
     	<cfargument name="cssSrc" type="string" default="#variables.instance.CSSSRC#" />
     	<cfargument name="loaderSrc" type="string" default="#variables.instance.LOADERSRC#" />
     	<cfargument name="adapter" default="" type="string" required="false" />
-		<cfargument name="params" default="#struct()#" type="struct" required="false" />
+		<cfargument name="params" default="#struct()#" type="struct" required="false" /><cfsilent>
 
 		<cfset var js = "" />
 		
@@ -49,31 +49,29 @@
 				<cfif len(arguments.adapter)><script type="text/javascript" src="#arguments.adapter#"></script></cfif>
             </cfoutput>		
         </cfsavecontent>
-		<cfset writeHeader(js,'Lucee-Ajax-Core')>
-  	</cffunction> 
+		</cfsilent><cfset writeHeader(js,'Lucee-Ajax-Core')><!---
+  	---></cffunction> 
 	
 	<!--- Write Header --->	
-	<cffunction name="writeHeader" returntype="void" access="public" description="writes data to html header but only once">
-        <cfargument name="text" required="yes" type="string">
-		<cfargument name="id" required="yes" type="string">
+<cfscript>
+	/**
+	* writes data to html header but only once
+	*/
+	public void function writeHeader(required string text, required string id) {
+		try {
+			htmlhead action="read" variable="local.head";
+		}
+		// throws exception when already flushed or action read is not supported
+		catch(e) {
+			echo(trim(text));
+			return;
+		}
+       	if(!find(id,head)) {
+       		htmlhead action="append" text="<!-- #id# --> #trim(text)#";
+    	}
+	}
+</cfscript>
 		
-        <cfset var head="">
-		<cfset var attrs = "" />
-		
-        <cftry>
-			<cfset attrs={action="read", variable="head"}>
-        	<cfhtmlhead attributeCollection="#attrs#">
-            <!--- throws exception when already flushed or action read is not supported --->
-            <cfcatch>
-            	<cfoutput>#trim(text)#</cfoutput>
-            	<cfreturn>
-            </cfcatch>
-        </cftry>
-       <cfif not find(id,head)>
-			<cfhtmlhead action="append" text="<!-- #id# --> #trim(text)#">
-		</cfif>
-    </cffunction>
-
 	<!--- StripWhiteSpace --->	
 	<cffunction name="stripWhiteSpace" output="no" returntype="string" hint="Strips whitespace outside tags from string"> 
 		<cfargument name="str" type="string" default="" required="no"/>
