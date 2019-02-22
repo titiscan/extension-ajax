@@ -1,116 +1,95 @@
-<cfcomponent>
-	
+component {
 	<!--- Constructor ------------------------------------------------------------------------->
-    <cffunction name="init" output="no" returntype="ajaxProxyHelper">
-		<cfreturn this/>
-  	</cffunction> 
-	
+    public function init() output="no" returntype="ajaxProxyHelper"{
+		return this;
+  	} 
 	<!--- Public ------------------------------------------------------------------------------>
-	<cffunction name="classToPath" returntype="string">
-		<cfargument name="cfcClass" required="true" type="string" />
-		<cfset var cfcPath = reReplace(arguments.cfcClass,'\.','/','All') />
-		<cfset cfcPath = '/' & cfcPath & '.cfc' />
+	public function classToPath(required string cfcClass) returntype = "string"{
+		var cfcPath = reReplace(arguments.cfcClass,'\.','/','All');
+		cfcPath = '/' & cfcPath & '.cfc';
 		<!--- Support context roots different from '/', ie '/myLucee' --->
-		<cfif getContextRoot() neq '/'> 
-			<cfset cfcPath = getContextRoot() & cfcPath />
-		</cfif>
-		<cfreturn cfcPath />
-	</cffunction>
+		if (getContextRoot() neq '/'){
+			cfcPath = getContextRoot() & cfcPath;
+		}
+		return cfcPath;
+	}
 	
-	<cffunction name="parseMetadata" returntype="struct">
-		<cfargument name="cfc" required="true" type="string" />
-		<cfargument name="methods" required="false" type="string" default=""/>
-		<cfargument name="extends" required="false" type="boolean" default="false" />
-		<cfset var result = {}/>
-		<cfset var access = "" />
-		<cfset local.cfc = replaceNoCase((listDeleteAt(CGI.SCRIPT_NAME, listFindNoCase(CGI.SCRIPT_NAME, listLast(CGI.SCRIPT_NAME, "/"), "/"), "/") & "/" & arguments.cfc), "/", ".", "All")>
-		<cfif fileExists(expandPath(replaceNoCase(local.cfc, '.', '/', 'all')) & '.cfc')>
-			<cfset var meta = getComponentMetadata(local.cfc)>
-		<cfelse>
-			<cfset var meta = getComponentMetadata(arguments.cfc)>
-		</cfif>
-		<cfset result.functions = createObject('java','java.util.ArrayList').init() />
-		<cfif structKeyExists(meta,'FUNCTIONS')>
-			<cfset var methods = filterFunction(meta.functions,arguments.methods) />
-			<cfset result.functions.addAll(methods) />
-		</cfif>	
-		<cfif arguments.extends>
-			<cfset addExtendedFunctions(meta.extends,result.functions,arguments.methods)/>	
-		</cfif>
-		<cfreturn result />	
-	</cffunction>
+	public function parseMetadata(required string cfc,string methods='',boolean extends = "false") returntype="struct"{
+		var result = {};
+		var access = "";
+		local.cfc = replaceNoCase((listDeleteAt(CGI.SCRIPT_NAME, listFindNoCase(CGI.SCRIPT_NAME, listLast(CGI.SCRIPT_NAME, "/"), "/"), "/") & "/" & arguments.cfc), "/", ".", "All");
+		if(fileExists(expandPath(replaceNoCase(local.cfc, '.', '/', 'all')) & '.cfc')){
+			var meta = getComponentMetadata(local.cfc);
+		}else{
+			var meta = getComponentMetadata(arguments.cfc);
+		}
+		result.functions = createObject('java','java.util.ArrayList').init();
+		if (structKeyExists(meta,'FUNCTIONS')){
+			var methods = filterFunction(meta.functions,arguments.methods);
+			result.functions.addAll(methods);
+		}
+		if (arguments.extends){
+			addExtendedFunctions(meta.extends,result.functions,arguments.methods);
+		}
+		return result;	
+	}
 	
-	<cffunction name="addExtendedFunctions" returntype="void">
-		<cfargument name="meta" type="struct" required="true" />
-		<cfargument name="functions" type="array" required="true"/>
-		<cfargument name="methods" required="false" type="string" default=""/>
-		
-		<cfset var i = "" /> 
+	public function addExtendedFunctions(required struct meta,required array functions,string methods = "") returntype="void"{
+		var i = "";
 		  
-	 	<cfif arguments.meta['name'] neq 'WEB-INF.cftags.component ' and arguments.meta['name'] neq 'lucee.component'>
-			<cfif structkeyExists(arguments.meta,'functions')>
-				<cfset arr = filterFunction(arguments.meta.functions,arguments.methods) />
-				<cfset arguments.functions.addAll(arr)/>
-			</cfif>	
-			<cfif structkeyExists(arguments.meta,'extends')>
-				<cfset addExtendedFunctions(arguments.meta.extends,arguments.functions,arguments.methods) />		
-			</cfif>	
-		</cfif>
-		
-	</cffunction>
+	 	if(arguments.meta['name'] neq 'WEB-INF.cftags.component ' and arguments.meta['name'] neq 'lucee.component'){
+			if(structkeyExists(arguments.meta,'functions')){
+				arr = filterFunction(arguments.meta.functions,arguments.methods);
+				arguments.functions.addAll(arr);
+			}	
+			if(structkeyExists(arguments.meta,'extends')){
+				addExtendedFunctions(arguments.meta.extends,arguments.functions,arguments.methods);
+			}	
+		}
+	}
 	
-	<cffunction name="isDuplicateFunction" returntype="string">
-		<cfargument name="result" required="true" type="array" />
-		<cfargument name="name" required="true" type="string" />
-		<cfset var resp = false />
-		<cfset var item = "" />
-		<cfloop array="#arguments.result#" index="item">
-			<cfif item.name eq arguments.name>
-				<cfreturn true />
-				<cfbreak/>
-			</cfif>
-		</cfloop>
-		<cfreturn resp />
-	</cffunction>
+	public function isDuplicateFunction(required array result,required string name) returntype="string"{
+		var resp = false;
+		var item = "";
+		loop array="#arguments.result#" ,index="item"{
+			if (item.name eq arguments.name){
+				return true;
+				break;
+			}
+		}
+		return resp;
+	}
 	
-	<cffunction name="filterFunction" returntype="array">
-		<cfargument name="functions" required="true" type="array" />
-		<cfargument name="methods" required="false" type="string" default=""/>
-		<cfset var result = arrayNew(1)/>
-		<cfset var method = "" />
-		<cfloop array="#arguments.functions#" index="method">		
-			<cfif structKeyExists(method,'access')>
-				<cfif method.access eq 'remote'>
-					<cfif listLen(arguments.methods)>
-						<cfif listFindnocase(arguments.methods,method.name) gt 0>
-							<cfset result.add(method) />
-						</cfif>						
-					<cfelse>
-						<cfset result.add(method) />
-					</cfif>	
-				</cfif>
-			</cfif>
-		</cfloop>
-		<cfreturn result />
-	</cffunction>
+	public function filterFunction(required array functions, string methods="") returntype="array"{
+		var result = arrayNew(1);
+		var method = "";
+		loop array="#arguments.functions#" ,index="method"{		
+			if(structKeyExists(method,'access')){
+				if(method.access eq 'remote'){
+					if(listLen(arguments.methods)){
+						if(listFindnocase(arguments.methods,method.name) gt 0){
+							result.add(method);
+						}else{result.add(method);}
+					}	
+				}
+			}
+		}
+		return result;
+	}
 	
-	<cffunction name="getArguments" returntype="string" output="false">
-		<cfargument name="argsArray" required="true" type="array" />
-		<cfset var result = "" />
-		<cfloop array="#arguments.argsArray#" index="arg">
-			<cfset result = listAppend(result,trim(arg.name)) />
-		</cfloop>
-		<cfreturn result />
-	</cffunction>
+	public function getArguments(required array argsArray) returntype="string" output="false"{
+		var result = "";
+		loop array="#arguments.argsArray#" ,index="arg"{
+			result = listAppend(result,trim(arg.name));
+		}
+		return result;
+	}
 	
-	<cffunction name="argsToJsMode" returntype="string" output="false">
-		<cfargument name="args" required="true" type="string" />
-		<cfset var result = "" />
-		<cfloop list="#arguments.args#" index="arg">
-			<cfset result = listAppend(result,'#trim(arg)#:#trim(arg)#') />
-		</cfloop>
-		<cfreturn result />
-	</cffunction>
-	
-	
-</cfcomponent>
+	public function argsToJsMode(required string args) returntype="string" output="false"{
+		var result = "";
+		loop list="#arguments.args#" ,index="arg"{
+			result = listAppend(result,'#trim(arg)#:#trim(arg)#');
+		}
+		return result;
+	}
+}

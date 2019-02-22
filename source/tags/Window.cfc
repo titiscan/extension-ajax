@@ -1,22 +1,18 @@
-<cfcomponent extends="lucee.core.ajax.AjaxBase">
-
-	<cfset variables._SUPPORTED_JSLIB = 'jquery,ext' />
-	<cfset variables.instance.ajaxBinder = createObject('component','lucee.core.ajax.AjaxBinder').init() />
-	
+component extends="lucee.core.ajax.AjaxBase"{
+	variables._SUPPORTED_JSLIB = 'jquery,ext';
+	variables.instance.ajaxBinder = createObject('component','lucee.core.ajax.AjaxBinder').init();
 	<!--- Meta data --->
-	<cfset this.metadata.attributetype="fixed">
-    <cfset this.metadata.hint="Creates a pop-up window in the browser. Does not create a separate browser pop-up instance. ">
-    
-    
-    <cfset this.metadata.attributes={
+	this.metadata.attributetype="fixed";
+	this.metadata.hint="Creates a pop-up window in the browser. Does not create a separate browser pop-up instance. ";
+	this.metadata.attributes={
 		name:			{required:false,type:"string",default:"_cf_window_#randRange(1,999999999)#",hint:""},
-		title:      	{required:false,type:"string",default:"",hint:""},		
+		title:      	{required:false,type:"string",default:"",hint:""},
 		source:			{required:false,type:"string",default:"",hint:""},
 		onBindError:	{required:false,type:"string",default:"",hint:""},
 		modal:      	{required:false,type:"boolean",default:false,hint:""},
-	  	refreshOnShow: 	{required:false,type:"boolean",default:false,hint:""},
+		refreshOnShow: 	{required:false,type:"boolean",default:false,hint:""},
 		width:  		{required:false,type:"numeric",default:500,hint:""},
-		height:			{required:false,type:"numeric",default:300,hint:""},	
+		height:			{required:false,type:"numeric",default:300,hint:""},
 		minWidth:  		{required:false,type:"numeric",default:150,hint:""},
 		minHeight:		{required:false,type:"numeric",default:150,hint:""},
 		initShow:   	{required:false,type:"boolean",default:false,hint:""},
@@ -26,92 +22,72 @@
 		jsLib:  		{required:false,type:"string",default:"jquery",hint:""},
 		x:		        {required:false,type:"numeric",default:-1,hint:""},
 		y:		        {required:false,type:"numeric",default:-1,hint:""},
-		buttons:        {required:false,type:"string",default:"{}",hint:""}					
-	}>
-         
-    <cffunction name="init" output="no" returntype="void"
-      hint="invoked after tag is constructed">
-    	<cfargument name="hasEndTag" type="boolean" required="yes">
-      	<cfargument name="parent" type="component" required="no" hint="the parent cfc custom tag, if there is one">
-
-      	<cfset var js = "" />     	
-      	<cfset variables.hasEndTag = arguments.hasEndTag />				
+		buttons:        {required:false,type:"string",default:"{}",hint:""}
+	};
+	public function init(required boolean hasEndTag, component parent) output="no" returntype="void"
+	  hint="invoked after tag is constructed"{
+		var js = "";
+		variables.hasEndTag = arguments.hasEndTag;
 		
-		<cfset super.init() />
-  	</cffunction> 
-    
-    <cffunction name="onStartTag" output="yes" returntype="boolean">
-   		<cfargument name="attributes" type="struct">
-   		<cfargument name="caller" type="struct">				
-
+		super.init();
+	} 
+	public function onStartTag(struct attributes, struct caller) output="yes" returntype="boolean"{
 		<!--- be sure library is supported ( if not we do not have resources to load ) --->
-		<cfif listfind(variables._SUPPORTED_JSLIB,attributes.jsLib) eq 0>
-			<cfthrow message="The js library [#attributes.jsLib#] is not supported for tag CFWINDOW. Supported libraries are [#variables._SUPPORTED_JSLIB#]">
-		</cfif>
-
-		<cfif not structKeyExists(request,'Lucee_Ajax_Window')>
-		<cfsavecontent variable="js">
-			<script type="text/javascript">Lucee.Ajax.importTag('CFWINDOW','#attributes.jsLib#');</script>
-		</cfsavecontent>
-		<cfhtmlhead text="#js#" />
-		<cfset request.Lucee_Ajax_Window = 'loaded' />
-		</cfif>
-
+		if(listfind(variables._SUPPORTED_JSLIB,attributes.jsLib) eq 0){
+			throw message="The js library [#attributes.jsLib#] is not supported for tag CFWINDOW. Supported libraries are [#variables._SUPPORTED_JSLIB#]";
+		}
+		if (not structKeyExists(request,'Lucee_Ajax_Window')){
+		savecontent variable="js"{
+			writeOutput('<script type="text/javascript">Lucee.Ajax.importTag("CFWINDOW","#attributes.jsLib#");</script>');
+		}
+		htmlhead text="#js#";
+		request.Lucee_Ajax_Window = 'loaded';
+		}
 		<!--- checks --->
-    	<cfset var hasRefreshOnShow=attributes.refreshOnShow />
-    	<cfset var hasSource=len(trim(attributes.source))>
+		var hasRefreshOnShow=attributes.refreshOnShow;
+		var hasSource=len(trim(attributes.source);
 		
-		<cfif not hasSource>
-			<cfif hasRefreshOnShow>
-				<cfthrow message="in this context attribute [hasRefreshOnShow] is not allowed">
-			</cfif>
-		</cfif>
-
-		<cfset doWindow(argumentCollection=arguments)/>
-		<cfoutput><div id="#attributes.name#"></cfoutput>
-		<cfif not variables.hasEndTag>
-			<cfoutput></div></cfoutput>
-		</cfif>
-	    <cfreturn variables.hasEndTag>   
-	</cffunction>
-
-    <cffunction name="onEndTag" output="yes" returntype="boolean">
-   		<cfargument name="attributes" type="struct">
-   		<cfargument name="caller" type="struct">				
-  		<cfargument name="generatedContent" type="string">						
+		if(not hasSource){
+			if(hasRefreshOnShow){
+				throw message="in this context attribute [hasRefreshOnShow] is not allowed";
+			}
+		}
+		doWindow(argumentCollection=arguments);
+		writeOutput('<div id="#attributes.name#">');
+		if(not variables.hasEndTag){
+			writeOutput('</div>');
+		}
+		return variables.hasEndTag;
+	}
+	public function onEndTag(struct attributes, struct caller, string generatedContent) output="yes" returntype="boolean"{
 			#arguments.generatedContent#</div>
-		<cfreturn false/>	
-	</cffunction>
-	
-	<!---doWindow--->		   
-    <cffunction name="doWindow" output="no" returntype="void">
-   		<cfargument name="attributes" type="struct">
-   		<cfargument name="caller" type="struct">
+		return false;
+	}
+	<!---doWindow--->
+	public function doWindow(struct attributes,struct caller) output="no" returntype="void"{
+		var js = "";
+		var rand = "_Lucee_Win_#randRange(1,99999999)#";
+		var bind = getAjaxBinder().parseBind('url:' & attributes.source);
 		
-		<cfset var js = "" />
-		<cfset var rand = "_Lucee_Win_#randRange(1,99999999)#" />		
-		<cfset var bind = getAjaxBinder().parseBind('url:' & attributes.source) />
+		bind['bindTo'] = attributes.name;
+		bind['listener'] = "Lucee.Ajax.innerHtml";
+		bind['errorHandler'] = attributes.onBindError;
 		
-		<cfset bind['bindTo'] = attributes.name />	
-		<cfset bind['listener'] = "Lucee.Ajax.innerHtml" />
-		<cfset bind['errorHandler'] = attributes.onBindError />
-		
-		<cfsavecontent variable="js"><cfoutput>
-		<script type="text/javascript">
-		#rand#_on_Load = function(){
-			<cfif len(attributes.source)>Lucee.Bind.register('#rand#',#serializeJson(bind)#,false);</cfif>
-			Lucee.Window.create('#attributes.name#','#attributes.title#','#attributes.source#',{modal:#attributes.modal#,refreshOnShow:#attributes.refreshOnShow#,resizable:#attributes.resizable#,draggable:#attributes.draggable#,width:#attributes.width#,height:#attributes.height#,minWidth:#attributes.minWidth#,minHeight:#attributes.minHeight#,initShow:#attributes.initShow#,x:#attributes.x#,y:#attributes.y#,buttons:#attributes.buttons#}<cfif len(attributes.source)>,'#rand#'</cfif>);
-		}		
-		Lucee.Events.subscribe(#rand#_on_Load,'onLoad');	
-		</script>		
-		</cfoutput></cfsavecontent>
-		<cfset writeHeader(js,'#rand#') /> 
-	</cffunction>
-
+		savecontent variable="js"{writeOutput("
+			<script type="text/javascript">
+			#rand#_on_Load = function(){
+				<cfif len(attributes.source)>Lucee.Bind.register('#rand#',#serializeJson(bind)#,false);</cfif>
+				Lucee.Window.create('#attributes.name#','#attributes.title#','#attributes.source#',{modal:#attributes.modal#,refreshOnShow:#attributes.refreshOnShow#,resizable:#attributes.resizable#,draggable:#attributes.draggable#,width:#attributes.width#,height:#attributes.height#,minWidth:#attributes.minWidth#,minHeight:#attributes.minHeight#,initShow:#attributes.initShow#,x:#attributes.x#,y:#attributes.y#,buttons:#attributes.buttons#}<cfif len(attributes.source)>,'#rand#'</cfif>);
+			}		
+			Lucee.Events.subscribe(#rand#_on_Load,'onLoad');
+			</script>
+			");
+		}
+		writeHeader(js,'#rand#');
+	}
 	<!--- Private --->	
 	<!--- getAjaxBinder --->
-	<cffunction name="getAjaxBinder" output="false" returntype="ajaxBinder" access="private">
-		<cfreturn variables.instance.ajaxBinder />    
-	</cffunction>
-		
-</cfcomponent>
+	public function getAjaxBinder() output="false" returntype="ajaxBinder" access="private"{
+		return variables.instance.ajaxBinder;
+	}
+}
