@@ -1,12 +1,12 @@
-component name="Map" extends="mapping-tag.lucee.core.ajax.AjaxBase"{
+component name = "Map" extends = "mapping-tag.lucee.core.ajax.AjaxBase"{
 	variables.instance._SUPPORTED_MAP_TYPES  = 'map,satellite,hybrid,terrain';
 	variables.instance._SUPPORTED_TYPES_CONTROL  = 'none,basic,advanced';
 	variables.instance._SUPPORTED_ZOOM_CONTROL  = 'none,small,large,large3d,small3d';
 	variables.instance.ajaxBinder = createObject('component','mapping-tag.lucee.core.ajax.AjaxBinder').init();
 	variables.children = [];
-	<!--- Meta data --->
-	this.metadata.attributetype="fixed";
-	this.metadata.attributes={
+	// Meta data
+	this.metadata.attributetype = "fixed";
+	this.metadata.attributes = {
 		name:				{required:false,type:"string",default:"_cfmap_#randRange(1,9999999)#"},
 		onLoad : 			{required:false,type:"string",default:""},
 		onNotFound : 		{required:false,type:"string",default:""},
@@ -30,98 +30,86 @@ component name="Map" extends="mapping-tag.lucee.core.ajax.AjaxBase"{
 		markercolor : 	    {required:false,type:"string",default:''},
 		markericon : 	    {required:false,type:"string",default:''}
 	};
-	 
-	public function init(required boolean hasEndTag, component parent) output="no" returntype="void"{
+	/** 
+	* Invoked after tag is constructed.
+	* @parent The parent cfc custom tag, if there is one.
+	*/
+	public void function init(required boolean hasEndTag, component parent) {
 		var js = "";
 		var str = {};
 		var mappings = getPageContext().getApplicationContext().getMappings();
-				
 		variables.hasEndTag = arguments.hasEndTag;
 		super.init();
-		savecontent variable="js"{
-			writeOutput('<script type="text/javascript">
-				Lucee.Ajax.importTag("CFMAP",null,"google","#variables.instance.LUCEEJSSRC#");
-				</script>
-				');
-		}
+		js=("
+			<script type='text/javascript'>
+				Lucee.Ajax.importTag('CFMAP',null,'google','#variables.instance.LUCEEJSSRC#');
+			</script>
+		");
 		writeHeader(js,'_cf_map_import');
 	} 
-	
-	public function onStartTag(struct attributes, struct caller) output="yes" returntype="boolean"{
+	public boolean function onStartTag(struct attributes, struct caller) {
 		variables.attributes = arguments.attributes;
-		<!--- checks --->
+		// checks
 		if(attributes.centeraddress eq "" and (attributes.centerlatitude eq "" or attributes.centerlongitude eq "")){
-			throw message="Attributes [centeraddress] or  [centerlatitude and centerlongitude] are required.";
+			throw message = "Attributes [centeraddress] or  [centerlatitude and centerlongitude] are required.";
 		}
-
 		if(not listFindNoCase(variables.instance._SUPPORTED_TYPES_CONTROL,attributes.typecontrol)){
-			throw message="Attributes [typecontrol] supported values are [#variables.instance._SUPPORTED_TYPES_CONTROL#].";
+			throw message = "Attributes [typecontrol] supported values are [#variables.instance._SUPPORTED_TYPES_CONTROL#].";
 		}
-
 		if(not listFindNoCase(variables.instance._SUPPORTED_MAP_TYPES,attributes.type)){
-			throw message="Attributes [type] supported values are [#variables.instance._SUPPORTED_MAP_TYPES#].";
+			throw message = "Attributes [type] supported values are [#variables.instance._SUPPORTED_MAP_TYPES#].";
 		}
-
 		if(not listFindNoCase(variables.instance._SUPPORTED_ZOOM_CONTROL,attributes.zoomcontrol)){
-			throw message="Attributes [zoomcontrol] supported values are [#variables.instance._SUPPORTED_ZOOM_CONTROL#].";
+			throw message = "Attributes [zoomcontrol] supported values are [#variables.instance._SUPPORTED_ZOOM_CONTROL#].";
 		}
-		
 		if(len(attributes.markercolor) and len(attributes.markercolor) neq 6){
-			throw message="Attribute [markercolor] must be in hexadecimal format es : FF0000.";
+			throw message = "Attribute [markercolor] must be in hexadecimal format es : FF0000.";
 		}
-		
 		writeOutput("<div id='#attributes.name#' style='height:#attributes.height#px;width:#attributes.width#px'</div>");
-		
-		if(not variables.hasEndTag){
-			
-		}
+		if(not variables.hasEndTag){ }
 		return variables.hasEndTag;
 	}
-
-	public function onEndTag(struct attributes,struct caller,string generatedContent) output="yes" returntype="boolean"{
-		doMap(argumentCollection=arguments);
+	public boolean function onEndTag(struct attributes,struct caller,string generatedContent) {
+		doMap(argumentCollection = arguments);
 		return false;	
 	}
-	<!---  children   --->
-	public function getChildren() access="public" output="false" returntype="array"{
+	//  children   
+	public array function getChildren() {
 		return variables.children;
 	}
-	<!---	addChild	--->
-	public function addChild(required mapitem child) output="false" access="public" returntype="void"{
+	//	addChild	
+	public void function addChild(required mapitem child) {
 		children = getchildren();
 		children.add(arguments.child);
 	}
-	<!---   attributes   --->
-	public function getAtttributes() access="public" output="false" returntype="struct"{
+	//   attributes   
+	public struct function getAtttributes() {
 		return variables.attributes;
 	}
-
-	public function getAttribute(required string key) output="false" access="public" returntype="any"{
+	public any function getAttribute(required string key) {
 		return variables.attributes[key];
 	}
-	<!---doMap--->		   
-	public function doMap(struct attributes, struct caller) output="no" returntype="void"{
+	//doMap	  
+	public void function doMap(struct attributes, struct caller) {
 		var js = "";
 		var rand = "_Lucee_Map_#randRange(1,99999999)#";
-		
 		var options = duplicate(attributes);
 		var children = getChildren();
 		structDelete(options,'name');
-		savecontent variable="js"{writeOutput("
-		<script type="text/javascript">
+		js &= "<script type = 'text/javascript'>";
 		#rand#_on_Load = function(){
 			Lucee.Map.init('#attributes.name#',#this.serializeJsonSafe(options)#);
-			<cfloop array="#children#" index="child">Lucee.Map.addMarker('#attributes.name#',#serializeJsonSafe(child.getAtttributes())#);</cfloop>
+			cfloop (array = '#children#',index='child'){
+				js &= "Lucee.Map.addMarker('#attributes.name#',#serializeJsonSafe(child.getAtttributes())#)";
+			}	
 		}		
-		Lucee.Events.subscribe(#rand#_on_Load,'onLoad');
-		</script>
-		");}
+		js &= "Lucee.Events.subscribe(#rand#_on_Load,'onLoad');</script>";
 		writeHeader(js,'#rand#');
 	}
-	public function serializeJsonSafe(required str) output="false" access="private" returntype="string"{
-		 var rtn={};
-			 loop collection="#str#" item="local.k" {
-			 rtn[lcase(k)]=str[k];
+	private string function serializeJsonSafe(required str) {
+		var rtn = {};
+			cfloop (collection = "#str#",item = "local.k") {
+			rtn[lcase(k)] = str[k];
 		}
 		return serializeJson(rtn);
 	}

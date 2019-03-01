@@ -1,24 +1,23 @@
 component {
-	<!--- Constructor ------------------------------------------------------------------------->
-    public function init() output="no" returntype="ajaxProxyHelper"{
+	// Constructor
+    public ajaxProxyHelper function init() {
 		return this;
   	} 
-	<!--- Public ------------------------------------------------------------------------------>
-	public function classToPath(required string cfcClass) returntype = "string"{
+	// Public
+	public string function classToPath(required string cfcClass) {
 		var cfcPath = reReplace(arguments.cfcClass,'\.','/','All');
 		cfcPath = '/' & cfcPath & '.cfc';
-		<!--- Support context roots different from '/', ie '/myLucee' --->
+		// Support context roots different from '/', ie '/myLucee'
 		if (getContextRoot() neq '/'){
 			cfcPath = getContextRoot() & cfcPath;
 		}
 		return cfcPath;
 	}
-	
-	public function parseMetadata(required string cfc,string methods='',boolean extends = "false") returntype="struct"{
+	public struct function parseMetadata(required string cfc,string methods = '',boolean extends = 'false') {
 		var result = {};
 		var access = "";
 		local.cfc = replaceNoCase((listDeleteAt(CGI.SCRIPT_NAME, listFindNoCase(CGI.SCRIPT_NAME, listLast(CGI.SCRIPT_NAME, "/"), "/"), "/") & "/" & arguments.cfc), "/", ".", "All");
-		if(fileExists(expandPath(replaceNoCase(local.cfc, '.', '/', 'all')) & '.cfc')){
+		if(fileExists(expandPath(replaceNoCase(local.cfc, '.', '/', 'all')) & '.cfc')) {
 			var meta = getComponentMetadata(local.cfc);
 		}else{
 			var meta = getComponentMetadata(arguments.cfc);
@@ -33,11 +32,9 @@ component {
 		}
 		return result;	
 	}
-	
-	public function addExtendedFunctions(required struct meta,required array functions,string methods = "") returntype="void"{
+	public void function addExtendedFunctions(required struct meta,required array functions,string methods = "") {
 		var i = "";
-		  
-	 	if(arguments.meta['name'] neq 'WEB-INF.cftags.component ' and arguments.meta['name'] neq 'lucee.component'){
+	 	if(arguments.meta['name'] neq 'WEB-INF.cftags.component' and arguments.meta['name'] neq 'lucee.component'){
 			if(structkeyExists(arguments.meta,'functions')){
 				arr = filterFunction(arguments.meta.functions,arguments.methods);
 				arguments.functions.addAll(arr);
@@ -47,11 +44,10 @@ component {
 			}	
 		}
 	}
-	
-	public function isDuplicateFunction(required array result,required string name) returntype="string"{
+	public string function isDuplicateFunction(required array result,required string name) {
 		var resp = false;
 		var item = "";
-		loop array="#arguments.result#" ,index="item"{
+		cfloop (array = "#arguments.result#",index = "item"){
 			if (item.name eq arguments.name){
 				return true;
 				break;
@@ -59,35 +55,34 @@ component {
 		}
 		return resp;
 	}
-	
-	public function filterFunction(required array functions, string methods="") returntype="array"{
+	public array function filterFunction(required array functions, string methods="") {
 		var result = arrayNew(1);
 		var method = "";
-		loop array="#arguments.functions#" ,index="method"{		
+		cfloop (array = "#arguments.functions#",index = "method"){		
 			if(structKeyExists(method,'access')){
 				if(method.access eq 'remote'){
 					if(listLen(arguments.methods)){
 						if(listFindnocase(arguments.methods,method.name) gt 0){
 							result.add(method);
-						}else{result.add(method);}
-					}	
+						}	
+					}else{
+						result.add(method);
+					}
 				}
 			}
 		}
 		return result;
 	}
-	
-	public function getArguments(required array argsArray) returntype="string" output="false"{
+	public string function getArguments(required array argsArray) {
 		var result = "";
-		loop array="#arguments.argsArray#" ,index="arg"{
+		cfloop (array = "#arguments.argsArray#",index = "arg"){
 			result = listAppend(result,trim(arg.name));
 		}
 		return result;
 	}
-	
-	public function argsToJsMode(required string args) returntype="string" output="false"{
+	public string function argsToJsMode(required string args) {
 		var result = "";
-		loop list="#arguments.args#" ,index="arg"{
+		cfloop (list = "#arguments.args#",index = "arg"){
 			result = listAppend(result,'#trim(arg)#:#trim(arg)#');
 		}
 		return result;
