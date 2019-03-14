@@ -1,9 +1,9 @@
-component extends = "lucee.core.ajax.AjaxBase" output = "no"  {
+component extends = "lucee.core.ajax.AjaxBase" {
 	variables.tags = 'CFAJAXPROXY,CFDIV,CFWINDOW,CFMAP,CFMENU';
 	//Meta data
-    this.metadata.hint = "Controls the JavaScript files that are imported for use on pages that use Luceex AJAX tags and features.";
+	this.metadata.hint = "Controls the JavaScript files that are imported for use on pages that use Luceex AJAX tags and features.";
 	this.metadata.attributetype = "fixed";
-    this.metadata.attributes = {
+	this.metadata.attributes = {
 		scriptSrc:	{required:false,type:"string",default:"",hint = "Specifies the URL, relative to the web root, of the directory that contains the JavaScript files used used by Lucee."},
 		tags:       {required:false,type:"string",default:"",hint = "A comma-delimited list of tags or tag-attribute combinations for which to import the supporting JavaScript files on this page."},
 		cssSrc:     {required:false,type:"string",default:"",hint = "Specifies the URL, relative to the web root, of the directory that contains the CSS files used by AJAX features"},
@@ -33,27 +33,27 @@ component extends = "lucee.core.ajax.AjaxBase" output = "no"  {
 			attributes.params = struct(); 
 		}
 		opts.params = attributes.params;
-      	super.init(argumentCollection:opts);
+		super.init(argumentCollection:opts);
 		// check
-		cfloop (list = "#attributes.tags#",index = "el"){
+		cfloop (list = attributes.tags,index = "el"){
 			if (listFindNoCase(variables.tags,el) eq 0){
-				throw (message = "tag [#el#] is not a valid value. Valid tag names are [#variables.tags#]"); 
+				throw (message = "tag [#el#] is not a valid value. Valid tag names are [#variables.tags#]");
 			}
 		}
-        doImport(argumentCollection = arguments);
-        return false;
+		doImport(argumentCollection = arguments);
+		return false;
 	}
 	public void function doImport(struct attributes,struct caller) {
 		var js = "";
 		if (len(attributes.tags)){
-			js &= "
-				<script type='text/javascript'>;
-			";
-			cfloop (list='#attributes.tags#',index='el'){
+			js &= '
+				<script type="text/javascript">;
+			';
+			cfloop (list = attributes.tags,index = 'el'){
 				js &= "Lucee.Ajax.importTag('#el#')";
 			};
-			js &= "</script>";
+			js &= '</script>';
 			writeHeader(js,'_import_#el#');
 		}
 	}
-}	
+}

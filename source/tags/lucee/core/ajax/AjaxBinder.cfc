@@ -1,10 +1,10 @@
-component  {
+component {
 	variables._LUCEE_AJAX_ALLOWED_BINDS = "cfc|javascript|url";
 	variables._LUCEE_AJAX_DEFAULT_BINDING_EVENT = "change";
 	variables._LUCEE_AJAX_ALLOWED_BINDING_EVENTS = "change|keyup|mousedown|none";
-	variables._LUCEE_JS_BIND_HANDLER = 'Lucee.Bind.jsBindHandler'; 
-	variables._LUCEE_CFC_BIND_HANDLER = 'Lucee.Bind.cfcBindHandler'; 
-	variables._LUCEE_URL_BIND_HANDLER = 'Lucee.Bind.urlBindHandler'; 
+	variables._LUCEE_JS_BIND_HANDLER = 'Lucee.Bind.jsBindHandler';
+	variables._LUCEE_CFC_BIND_HANDLER = 'Lucee.Bind.cfcBindHandler';
+	variables._LUCEE_URL_BIND_HANDLER = 'Lucee.Bind.urlBindHandler';
 	variables.instance.proxyHelper = createObject('component','ajaxProxyHelper').init();
 	// Constructor
 	public ajaxBinder function init() {
@@ -17,9 +17,9 @@ component  {
 		if(local.params.len[1] gt 0){
 			local.params = mid(arguments.bindExpr,local.params.pos[1] + 1,local.params.len[1] -2 );
 		}else{
-			throw( message="No parameters found in the bind expression #arguments.bindExpr#",type="cfajaxproxy.noParameterFound" );	
+			throw( message="No parameters found in the bind expression #arguments.bindExpr#",type="cfajaxproxy.noParameterFound" );
 		}
-		cfloop (list = "#local.params#",index = "i",delimiters = ","){
+		cfloop (list = local.params,index = "i",delimiters = ","){
 			local.param = "";
 			local.event = "";
 			local.containerid = "";
@@ -82,12 +82,12 @@ component  {
 			local.result['handler'] = _LUCEE_JS_BIND_HANDLER;
 		}
 		// cfc
-		if( local.bindType eq 'cfc'){
+		if(local.bindType eq 'cfc'){
 			local.cfcString = reFindNoCase(':.*\(',arguments.bindExpr,1,true);
 			if( local.cfcString.len[1] gt 0){
 				local.cfcString = mid(arguments.bindExpr,local.cfcString.pos[1] + 1,local.cfcString.len[1] -2);
 				local.len = listlen(local.cfcString,'.');
-				local.result['method'] = listGetAt(local.cfcString,local.len,'.'); 
+				local.result['method'] = listGetAt(local.cfcString,local.len,'.');
 				local.result['url'] = listDeleteAt(local.cfcString,local.len,'.');
 				local.result['url'] = variables.instance.proxyHelper.classToPath(local.result['url']);
 			}else{
@@ -111,18 +111,18 @@ component  {
 				// Alter the bind Expression to fit the parseParameters 
 				local.queryString = reFindNoCase('\?.*',arguments.bindExpr,1,true);
 				local.queryString = mid(arguments.bindExpr,local.queryString.pos[1] + 1, local.queryString.len[1] -1);
-	            // Looks for normal quesry string parameters that are not bindings and keep them with url
-	            local.qs = "";
-	            local.binds = "";
-	            cfloop (list = "#local.queryString#",index = "local.item",delimiters = "&"){
-	                if( find("{",local.item) eq 0){
-	                	local.qs = listAppend(local.qs,local.item,"&");
-	                }else{
-	                    local.binds = listAppend(local.binds,local.item,"&");
-	                }
-	            }
-	            // add qs to url
-	            local.result["url"] = "#local.result["url"]#?#local.qs#";
+				// Looks for normal quesry string parameters that are not bindings and keep them with url
+				local.qs = "";
+				local.binds = "";
+				cfloop (list = local.queryString,index = "local.item",delimiters = "&"){
+					if( find("{",local.item) eq 0){
+						local.qs = listAppend(local.qs,local.item,"&");
+					}else{
+						local.binds = listAppend(local.binds,local.item,"&");
+					}
+				}
+				// add qs to url
+				local.result["url"] = "#local.result["url"]#?#local.qs#";
 				arguments.bindExpr = reReplace('(' & local.binds &')','&',',','All');
 			}
 			local.result['handler'] = _LUCEE_URL_BIND_HANDLER;

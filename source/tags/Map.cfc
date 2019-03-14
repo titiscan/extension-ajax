@@ -40,11 +40,11 @@ component name = "Map" extends = "mapping-tag.lucee.core.ajax.AjaxBase"{
 		var mappings = getPageContext().getApplicationContext().getMappings();
 		variables.hasEndTag = arguments.hasEndTag;
 		super.init();
-		js=("
-			<script type='text/javascript'>
-				Lucee.Ajax.importTag('CFMAP',null,'google','#variables.instance.LUCEEJSSRC#');
+		js &= ('
+			<script type="text/javascript">
+				Lucee.Ajax.importTag("CFMAP",null,"google","#variables.instance.LUCEEJSSRC#");
 			</script>
-		");
+		');
 		writeHeader(js,'_cf_map_import');
 	} 
 	public boolean function onStartTag(struct attributes, struct caller) {
@@ -65,7 +65,7 @@ component name = "Map" extends = "mapping-tag.lucee.core.ajax.AjaxBase"{
 		if(len(attributes.markercolor) and len(attributes.markercolor) neq 6){
 			throw message = "Attribute [markercolor] must be in hexadecimal format es : FF0000.";
 		}
-		writeOutput("<div id='#attributes.name#' style='height:#attributes.height#px;width:#attributes.width#px'</div>");
+		writeOutput('<div id="#attributes.name#" style="height:#attributes.height#px;width:#attributes.width#px;"</div>');
 		if(not variables.hasEndTag){ }
 		return variables.hasEndTag;
 	}
@@ -89,17 +89,17 @@ component name = "Map" extends = "mapping-tag.lucee.core.ajax.AjaxBase"{
 	public any function getAttribute(required string key) {
 		return variables.attributes[key];
 	}
-	//doMap	  
+	//doMap
 	public void function doMap(struct attributes, struct caller) {
 		var js = "";
 		var rand = "_Lucee_Map_#randRange(1,99999999)#";
 		var options = duplicate(attributes);
 		var children = getChildren();
 		structDelete(options,'name');
-		js &= "<script type = 'text/javascript'>";
+		js &= '<script type = "text/javascript">';
 		#rand#_on_Load = function(){
 			Lucee.Map.init('#attributes.name#',#this.serializeJsonSafe(options)#);
-			cfloop (array = '#children#',index='child'){
+			cfloop (array = children,index='child'){
 				js &= "Lucee.Map.addMarker('#attributes.name#',#serializeJsonSafe(child.getAtttributes())#)";
 			}	
 		}		
@@ -108,7 +108,7 @@ component name = "Map" extends = "mapping-tag.lucee.core.ajax.AjaxBase"{
 	}
 	private string function serializeJsonSafe(required str) {
 		var rtn = {};
-			cfloop (collection = "#str#",item = "local.k") {
+			cfloop (collection = str,item = "local.k") {
 			rtn[lcase(k)] = str[k];
 		}
 		return serializeJson(rtn);

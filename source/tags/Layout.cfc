@@ -1,4 +1,4 @@
-component extends = "lucee.core.ajax.AjaxBase" output = "no"  {
+component extends = "lucee.core.ajax.AjaxBase" {
 	variables._SUPPORTED_JSLIB = 'jquery';
 	variables.supported_types = 'tab'; 
 	variables.children = [];
@@ -6,7 +6,7 @@ component extends = "lucee.core.ajax.AjaxBase" output = "no"  {
 	// Meta data
 	this.metadata.attributetype = "fixed";
 	this.metadata.hint = "";
-    this.metadata.attributes = {
+	this.metadata.attributes = {
 		type:			{required:true,type:"string",hint = ""},
 		name:			{required:false,type:"string",default:"_cf_layout_#randRange(1,999999999)#",hint = ""},
 		style:      	{required:false,type:"string",default:"",hint = ""},
@@ -47,13 +47,13 @@ component extends = "lucee.core.ajax.AjaxBase" output = "no"  {
 		doAttributesCheck(attributes);
 		// Load Resources 
 		if( not structKeyExists(request,'Lucee_Ajax_Layout_#attributes.type#')){
-			js &= ("
-				<script type = 'text/javascript'>Lucee.Ajax.importTag('CFLAYOUT-#uCase(attributes.type)#','#attributes.jsLib#');</script>
-			");
+			js &= ('
+				<script type = "text/javascript">Lucee.Ajax.importTag("CFLAYOUT-#uCase(attributes.type)#","#attributes.jsLib#");</script>
+			');
 			htmlhead text = "#js#";
 			request['Lucee_Ajax_Layout_#attributes.type#'] = 'loaded';
 		}
-	    return variables.hasEndTag;
+		return variables.hasEndTag;
 	}
 	public boolean function onEndTag(struct attributes,struct caller,string generatedContent) {
 		var children = getChildren();
@@ -65,8 +65,8 @@ component extends = "lucee.core.ajax.AjaxBase" output = "no"  {
 		switch(attributes.type) {
 			case tab:
 			tab = dotab(argumentCollection = arguments);
-		}      
-			writeOutput("<div id="#attributes.name#" style="#style#">#tab##</div>");
+		}
+			writeOutput('<div id="#attributes.name#" style="#style#">#tab#</div>');
 		return false;
 	}
 	// attributes 
@@ -94,26 +94,26 @@ component extends = "lucee.core.ajax.AjaxBase" output = "no"  {
 		}
 	}
 	private string function doTab(struct attributes,struct caller, string generatedContent) {
-		 var js = "";
-		 var tab = "";
-		 var rand = "_Lucee_Layout_#randRange(1,99999999)#";
-		 var selected = "";
-		 var disabled = "" ;
-		 var binds = [];
-		 var bind = {};
-		 var options = [];
-		 var opt = {};
-		 var layoutOptions = {};
+		js = "";
+		var tab = "";
+		var rand = "_Lucee_Layout_#randRange(1,99999999)#";
+		var selected = "";
+		var disabled = "" ;
+		var binds = [];
+		var bind = {};
+		var options = [];
+		var opt = {};
+		var layoutOptions = {};
 		 // make the html
-		 tab &= "<ul></ul>"
-			cfloop (array='#getChildren()#',index='child'){
-				tab &= "<div id='#child.getAttribute('name')#'>#child.getGeneratedContent()#</div>";
+		tab &= '<ul></ul>'
+			cfloop (array = getChildren(),index = 'child'){
+				tab &= '<div id="#child.getAttribute('name')#">#child.getGeneratedContent()#</div>';
 			}
 		// append js to head
-		js &= "<script type='text/javascript'>";
+		js &= '<script type="text/javascript">';
 		_cf_layout_#rand# = function() {
 			Lucee.Layout.initializeTabLayout('#attributes.name#',#serializeJson(attributes)#);
-			cfloop (array='#getChildren()#',index='child'){
+			cfloop (array = getChildren(),index = 'child'){
 				var randArea = 'cf_layout_tab_bind_#randRange(1,99999999)#';
 				if (len(child.getAttribute('source'))){
 					js &= ("
@@ -150,4 +150,4 @@ component extends = "lucee.core.ajax.AjaxBase" output = "no"  {
 	private ajaxBinder function getAjaxBinder() {
 		return variables.instance.ajaxBinder;
 	}
-}	
+}

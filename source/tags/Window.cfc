@@ -40,7 +40,7 @@ component extends = "lucee.core.ajax.AjaxBase"{
 		}
 		if (not structKeyExists(request,'Lucee_Ajax_Window')){
 			js &= ('<script type = "text/javascript">Lucee.Ajax.importTag("CFWINDOW","#attributes.jsLib#");</script>');
-			htmlhead text = "#js#";
+			htmlhead text = js;
 			request.Lucee_Ajax_Window = 'loaded';
 		}
 		//checks 
@@ -70,7 +70,7 @@ component extends = "lucee.core.ajax.AjaxBase"{
 		bind['bindTo'] = attributes.name;
 		bind['listener'] = "Lucee.Ajax.innerHtml";
 		bind['errorHandler'] = attributes.onBindError;
-		js &= "<script type='text/javascript'>";
+		js &= '<script type="text/javascript">';
 		#rand#_on_Load = function() {
 			if (len(attributes.source)){Lucee.Bind.register('#rand#',#serializeJson(bind)#,false);}
 			js &= "Lucee.Window.create('#attributes.name#','#attributes.title#','#attributes.source#',{modal:#attributes.modal#,refreshOnShow:#attributes.refreshOnShow#,resizable:#attributes.resizable#,draggable:#attributes.draggable#,width:#attributes.width#,height:#attributes.height#,minWidth:#attributes.minWidth#,minHeight:#attributes.minHeight#,initShow:#attributes.initShow#,x:#attributes.x#,y:#attributes.y#,buttons:#attributes.buttons#};";

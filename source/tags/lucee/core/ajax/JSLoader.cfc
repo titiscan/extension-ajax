@@ -1,4 +1,4 @@
-component output = "false" {
+component {
 	// get
 	remote string function get(string lib)returnformat = "plain" {
 		// restrict to files from JS directory
@@ -10,7 +10,7 @@ component output = "false" {
 		if (fileExists( expandPath( relPath ))) {
 			cfcontent(type = "text/javascript");
 			savecontent(variable = "local.result");
-			include template = "#relPath#";
+			include template = relPath;
 			return result;
 		}else{
 			cfheader(statuscode = "404");
@@ -18,5 +18,3 @@ component output = "false" {
 		}
 	}
 }
-
-	
