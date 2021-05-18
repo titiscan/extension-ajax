@@ -2,17 +2,17 @@ component name = "LayoutArea"  {
 	variables['generatedContent'] = "";
 	// Meta data
 	this.metadata.attributetype = "fixed";
-    this.metadata.attributes = {
-		name:      		{required:false,type:"string",default:"_cf_layout_#randRange(1,999999999)#"},
-		title:     		{required:false,type:"string",default:""},
-		selected : 		{required:false,type:"Boolean",default:"false"},
-		disabled : 		{required:false,type:"Boolean",default:"false"},
-		source:			{required:false,type:"string",default:""},
-		onBindError:	{required:false,type:"string",default:""},
-		refreshOnActivate: {required:false,type:"Boolean",default:"false"},
-		style:			{required:false,type:"string",default:""},
-		overflow:		{required:false,type:"string",default:"auto"}
-	};
+    this.metadata.attributes = [
+		"name":      		{required:false,type:"string",default:"_cf_layout_#randRange(1,999999999)#"},
+		"title":     		{required:false,type:"string",default:""},
+		"selected" : 		{required:false,type:"Boolean",default:"false"},
+		"disabled" : 		{required:false,type:"Boolean",default:"false"},		
+		"source":			{required:false,type:"string",default:""},
+		"onBindError":	{required:false,type:"string",default:""},
+		"refreshOnActivate": {required:false,type:"Boolean",default:"false"},
+		"style":			{required:false,type:"string",default:""},
+		"overflow":		{required:false,type:"string",default:"auto"}
+	];
 	/**
 	* Invoked after tag is constructed
 	* @parent The parent cfc custom tag, if there is one.

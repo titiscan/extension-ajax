@@ -6,20 +6,20 @@ component extends = "lucee.core.ajax.AjaxBase" {
 	// Meta data
 	this.metadata.attributetype = "fixed";
 	this.metadata.hint = "";
-	this.metadata.attributes = {
-		type:			{required:true,type:"string",hint = ""},
-		name:			{required:false,type:"string",default:"_cf_layout_#randRange(1,999999999)#",hint = ""},
-		style:      	{required:false,type:"string",default:"",hint = ""},
-		jsLib:  		{required:false,type:"string",default:"jquery",hint = ""},
-		/* tab only */
-		tabHeight : 	{required:false,type:"numeric",default:50,hint = ""},
-		tabsselect :	{required:false,type:"string",default:"",hint = ""},
-		tabsadd : 		{required:false,type:"string",default:"",hint = ""},
-		tabsremove :	{required:false,type:"string",default:"",hint = ""},
-		tabsenable :	{required:false,type:"string",default:"",hint = ""},
-		tabsdisable : 	{required:false,type:"string",default:"",hint = ""},
-		tabsload : 		{required:false,type:"string",default:"",hint = ""}
-	};
+	this.metadata.attributes = [
+		"type":			{required:true, type:"string",hint=""},
+		"name":			{required:false, type:"string",default:"_cf_layout_#randRange(1,999999999)#",hint=""},
+		"style":		{required:false, type:"string",default:"",hint=""},
+		"jsLib":  		{required:false, type:"string",default:"jquery",hint=""},
+	/* tab only */
+		"tabHeight" : 	{required:false, type:"numeric",default:50,hint=""},
+		"tabsSelect" :	{required:false, type:"string",default:"",hint=""},
+		"tabsAdd" : 		{required:false, type:"string",default:"",hint=""},
+		"tabsRemove" :	{required:false, type:"string",default:"",hint=""},
+		"tabsEnable" :	{required:false, type:"string",default:"",hint=""},
+		"tabsDisable" : 	{required:false, type:"string",default:"",hint=""},
+		"tabsLoad" : 		{required:false, type:"string",default:"",hint=""}
+	];
 	/**
 	* Invoked after tag is constructed.
 	* @parent The parent cfc custom tag, if there is one.

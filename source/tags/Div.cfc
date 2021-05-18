@@ -3,15 +3,15 @@ component extends = "lucee.core.ajax.AjaxBase" {
 	// Meta data
 	this.metadata.hint = "Creates an HTML tag with specified contents and lets you to use bind expressions to dynamically control the tag contents.";
 	this.metadata.attributetype = "fixed";
-	this.metadata.attributes = {
-		id:			{required:false,type:"string",default:"",hint = "The HTML ID attribute value to assign to the generated container tag."},
-		bindOnLoad: {required:false,type:"boolean",default:true,hint = "- true (executes the bind attribute expression when first loading the tag. 
+	this.metadata.attributes = [
+		"id":			{required:false,type:"string",default:"",hint="The HTML ID attribute value to assign to the generated container tag."},
+		"bindOnLoad": {required:false,type:"boolean",default:true,hint="- true (executes the bind attribute expression when first loading the tag. 
 		- false (does not execute the bind attribute expression until the first bound event)
 		To use this attribute, you must also specify a bind attribute"},
-		bind:		{required:false,type:"string",hint = "A bind expression that returns the container contents. Note: If a CFML page specified in this attribute contains tags that use AJAX features, such as cfform, cfgrid, and cfwindow, you must use a tag on the page with the tag. For more information, see cfajaximport."},
-		onBindError:{required:false,type:"string",default:"",hint = "The name of a JavaScript function to execute if evaluating a bind expression results in an error. The function must take two attributes: an HTTP status code and a message."},
-		tagName:	{required:false,type:"string",default:"div",hint = "The HTML container tag to create."}
-	};
+		"bind":		{required:false,type:"string",hint="A bind expression that returns the container contents. Note: If a CFML page specified in this attribute contains tags that use AJAX features, such as cfform, cfgrid, and cfwindow, you must use a tag on the page with the tag. For more information, see cfajaximport."},
+		"onBindError":{required:false,type:"string",default:"",hint="The name of a JavaScript function to execute if evaluating a bind expression results in an error. The function must take two attributes: an HTTP status code and a message."},
+		"tagName":	{required:false,type:"string",default:"div",hint="The HTML container tag to create."}
+	];
 	/**
 	* Invoked after tag is constructed.
 	* @parent The parent cfc custom tag, if there is one.

@@ -1,16 +1,16 @@
 component name = "Mapitem"{
 	// Meta data 
 	this.metadata.attributetype = "fixed";
-	this.metadata.attributes = {
-		name:      	    {required:false,type:"string",default:""},
-		address:      	{required:false,type:"string",default:""},
-		latitude:     	{required:false,type:"string",default:""},
-		longitude : 	{required:false,type:"string",default:""},
-		tip:		    {required:false,type:"string",default:""},
-		markerwindowcontent:	{required:false,type:"string",default:""},
-		markercolor : 	    {required:false,type:"string",default:''},
-		markericon : 	    {required:false,type:"string",default:''}
-	};
+	this.metadata.attributes = [
+	    "name":      	    {required:false,type:"string",default:""},
+		"address":      	{required:false,type:"string",default:""},
+		"latitude":     	{required:false,type:"string",default:""},
+		"longitude" : 	{required:false,type:"string",default:""},
+		"tip":		    {required:false,type:"string",default:""},
+		"markerWindowContent":	{required:false,type:"string",default:""},
+		"markerColor" : 	    {required:false,type:"string",default:''},
+		"markerIcon" : 	    {required:false,type:"string",default:''}	
+	];
 	/**
 	* Invoked after tag is constructed
 	* @parent The parent cfc custom tag, if there is one.
