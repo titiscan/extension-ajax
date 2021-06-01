@@ -36,6 +36,10 @@
 		<cfif arguments.cssSrc neq variables.instance.CSSSRC>
 			<cfset variables.instance.isCustomCss = true />
 		</cfif>
+		
+		<cfif NOT structKeyExists(arguments.params,"GOOGLEMAPKEY")>
+			<cfset arguments.params.GOOGLEMAPKEY = "">
+		</cfif>
 
 		<cfsavecontent variable="js">
 			<cfoutput>									
