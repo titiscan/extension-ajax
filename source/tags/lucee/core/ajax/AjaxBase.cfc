@@ -1,4 +1,4 @@
-component name = "ajaxBase" {
+component name = "ajaxBase" output="no" {
 	// Instance vars
 	variables.instance = {};
 	//	Resources location ( can be overwritten )
@@ -8,19 +8,24 @@ component name = "ajaxBase" {
 	//	Lucee js library location 
 	variables.instance.LUCEEJSSRC = "/mapping-tag/lucee/core/ajax/JSLoader.cfc?method=get&lib=";
 	// Default to current context, can be overridden on init
-	if (getContextRoot() neq "/"){
-		variables.instance.SCRIPTSRC = getContextRoot() & variables.instance.SCRIPTSRC;
-		variables.instance.CSSSRC = getContextRoot() & variables.instance.CSSSRC;
-		variables.instance.LOADERSRC = getContextRoot() & variables.instance.LOADERSRC;
-		variables.instance.LUCEEJSSRC = getContextRoot() & variables.instance.LUCEEJSSRC;
+	variables.contextRoot = getContextRoot();
+	if (variables.contextRoot neq "/"){
+		variables.instance.SCRIPTSRC = variables.contextRoot & variables.instance.SCRIPTSRC;
+		variables.instance.CSSSRC = variables.contextRoot & variables.instance.CSSSRC;
+		variables.instance.LOADERSRC = variables.contextRoot & variables.instance.LOADERSRC;
+		variables.instance.LUCEEJSSRC = variables.contextRoot & variables.instance.LUCEEJSSRC;
 	}
 	// Constructor
 	public void function init(string scriptSrc = "#variables.instance.SCRIPTSRC#", string cssSrc = "#variables.instance.CSSSRC#",
 		string loaderSrc = "#variables.instance.LOADERSRC#" , string adapter = "",struct params = {}) {
 		var js = "";
-		if(arguments.cssSrc neq variables.instance.CSSSRC){
+		if (arguments.cssSrc neq variables.instance.CSSSRC) {
 			variables.instance.isCustomCss = true;
 		}
+		if (NOT structKeyExists(arguments.params,"GOOGLEMAPKEY")) {
+			arguments.params.GOOGLEMAPKEY = ""
+		}
+
 		js &= '<script type="text/javascript">
 				var _cf_ajaxscriptsrc = "#arguments.scriptsrc#";
 				var _cf_ajaxcsssrc = "#arguments.cssSrc#";
