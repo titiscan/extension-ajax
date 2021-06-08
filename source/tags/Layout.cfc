@@ -1,210 +1,153 @@
-<cfcomponent extends="lucee.core.ajax.AjaxBase" output="no">
-	
-	<cfset variables._SUPPORTED_JSLIB = 'jquery' />
-	<cfset variables.supported_types = 'tab' />	
-	<cfset variables.children = [] />
-	<cfset variables.instance.ajaxBinder = createObject('component','lucee.core.ajax.AjaxBinder').init() />
-	
-	<!--- Meta data --->
-	<cfset this.metadata.attributetype="fixed">
-	<cfset this.metadata.hint="">
-    <cfset this.metadata.attributes={
-		type:			{required:true,type:"string",hint=""},
-		name:			{required:false,type:"string",default:"_cf_layout_#randRange(1,999999999)#",hint=""},
-		style:      	{required:false,type:"string",default:"",hint=""},
-		jsLib:  		{required:false,type:"string",default:"jquery",hint=""},	
-		
-		/* tab only */
-		tabHeight : 	{required:false,type:"numeric",default:50,hint=""},
-		tabsselect :	{required:false,type:"string",default:"",hint=""},
-		tabsadd : 		{required:false,type:"string",default:"",hint=""},
-		tabsremove :	{required:false,type:"string",default:"",hint=""},
-		tabsenable :	{required:false,type:"string",default:"",hint=""},
-		tabsdisable : 	{required:false,type:"string",default:"",hint=""},
-		tabsload : 		{required:false,type:"string",default:"",hint=""}
-								
-	}>
-         
-    <cffunction name="init" returntype="void" hint="invoked after tag is constructed">
-    	<cfargument name="hasEndTag" type="boolean" required="yes">
-      	<cfargument name="parent" type="component" required="no" hint="the parent cfc custom tag, if there is one"><!---
-      	---><cfset var js = "" /><!---
-			
-      	---><cfset variables.hasEndTag = arguments.hasEndTag /><!----
-    	  	
-		
-		 Cflayout cannot be empty 
-		---><cfif not variables.hasEndTag>
-			<cfthrow message="Tag cflayout must have at least one cflayoutarea child tag." />
-		</cfif><!---
-		
-		---><cfset super.init() /><!---		
-  	---></cffunction> 
-    
-    <cffunction name="onStartTag" output="yes" returntype="boolean">
-   		<cfargument name="attributes" type="struct">
-   		<cfargument name="caller" type="struct">
-   		
-		<cfset var js = "" />
-		<cfset variables.attributes = arguments.attributes />
-
-		<!--- be sure library is supported ( if not we do not have resources to load ) --->
-		<cfif listfind(variables._SUPPORTED_JSLIB,attributes.jsLib) eq 0>
-			<cfthrow message="The js library [#attributes.jsLib#] is not supported for tag CFLAYOUT. Supported libraries are [#variables._SUPPORTED_JSLIB#]">
-		</cfif>
-
-		<cfif listFindNoCase(variables.supported_types,attributes.type) eq 0>
-			<cfthrow message="type [#attributes.type#] is not a valid value. Valid types are are : #variables.supported_types#" />
-		</cfif>
-		
-		<!--- do Attributes Check --->
-		<cfset doAttributesCheck(attributes)/>
-		
-		<!--- Load Resources --->
-		<cfif not structKeyExists(request,'Lucee_Ajax_Layout_#attributes.type#')>
-		<cfsavecontent variable="js">
-			<script type="text/javascript">Lucee.Ajax.importTag('CFLAYOUT-#uCase(attributes.type)#','#attributes.jsLib#');</script>
-		</cfsavecontent>
-		<cfhtmlhead text="#js#" />
-		<cfset request['Lucee_Ajax_Layout_#attributes.type#'] = 'loaded' />
-		</cfif>
-					
-	    <cfreturn variables.hasEndTag>   
-	</cffunction>
-
-    <cffunction name="onEndTag" returntype="boolean">
-   		<cfargument name="attributes" type="struct">
-   		<cfargument name="caller" type="struct">				
-  		<cfargument name="generatedContent" type="string"><cfsilent>
-		
-		<cfset var children = getChildren() />
-  		<cfset var style = attributes.style />
-				
-  		<!--- Cflayout cannot be empty --->
-		<cfif arrayIsEmpty(children)>
-			<cfthrow message="Tag cflayout must have at least one cflayoutarea child tag." />
-		</cfif>
-		
-		</cfsilent><cfswitch expression="#attributes.type#"><!---       
-			---><cfcase value="tab"><!---
-			---><cfset tab = dotab(argumentCollection = arguments) /><!---
-			---></cfcase><!---
-		---></cfswitch><!---
-		
-		---><cfoutput><div id="#attributes.name#" style="#style#">
-				#tab#
-			</div></cfoutput><!---
-		
-		---><cfreturn false/><!---
-	---></cffunction>
-
-	<!---   attributes   --->
-	<cffunction name="getAtttributes" access="public" output="false" returntype="struct">
-		<cfreturn variables.Atttributes/>
-	</cffunction>
-
-    <cffunction name="getAttribute" output="false" access="public" returntype="any">
-		<cfargument name="key" required="true" type="String" />
-    	<cfreturn variables.attributes[key] />
-    </cffunction>
-
-    <!---  children   --->
-	<cffunction name="getChildren" access="public" output="false" returntype="array">
-		<cfreturn variables.children/>
-	</cffunction>
-	
-	<!---	addChild	--->
-    <cffunction name="addChild" output="false" access="public" returntype="void">
-    	<cfargument name="child" required="true" type="layoutarea" />
-		<cfset children = getchildren() />
-		<cfset children.add(arguments.child) />
-    </cffunction>
-	
-	<!--- private -------------------------------------------------------------------------------->
-
-	<!---doAttributesCheck--->
-    <cffunction name="doAttributesCheck" output="false" access="private" returntype="void">
-    	<cfargument name="attributes" type="struct">
-		
-		<cfswitch expression="#attributes.type#">        
-			
-			<cfcase value="tab">
-				
-			</cfcase>
-
-		</cfswitch>
-	
-    </cffunction>
-
-    <cffunction name="doTab" access="private" returntype="string">
-     	<cfargument name="attributes" type="struct">
-   		<cfargument name="caller" type="struct">				
-  		<cfargument name="generatedContent" type="string"><cfsilent>
-
-  		<cfset var js = "" />
-		<cfset var tab = "" />
-		<cfset var rand = "_Lucee_Layout_#randRange(1,99999999)#" />
-		<cfset var selected = "" />
-		<cfset var disabled = "" />		
-		<cfset var binds = [] />
-		<cfset var bind = {} />
-		<cfset var options = [] />
-		<cfset var opt = {} />
-		<cfset var layoutOptions = {} />
-		
-		
-		<!--- make the html --->
-		</cfsilent><cfsavecontent variable="tab">  
-			<cfoutput>
-				<ul></ul>
-				<cfloop array="#getChildren()#" index="child">
-					<div id="#child.getAttribute('name')#">#child.getGeneratedContent()#</div>
-				</cfloop>
-			</cfoutput>
-		</cfsavecontent><!---	
-
-		 append js to head
-		 ---><cfsavecontent variable="js">            
-			<cfoutput>
-			<script type="text/javascript">
-			_cf_layout_#rand# = function(){
-				Lucee.Layout.initializeTabLayout('#attributes.name#',#serializeJson(attributes)#);
-				<cfloop array="#getChildren()#" index="child">
-					<cfsilent>
-					<cfset randArea = 'cf_layout_tab_bind_#randRange(1,99999999)#' />
-					<cfif len(child.getAttribute('source'))>
-						<cfset bind = {} />
-						<cfset bind = getAjaxBinder().parseBind('url:' & child.getAttribute('source')) />
-						<cfset bind['bindTo'] = child.getAttribute('name') />	
-						<cfset bind['listener'] = "Lucee.Ajax.innerHtml" />
-						<cfset bind['errorHandler'] = child.getAttribute('onBindError') />
-					</cfif>
-					<cfset opt = {} />
-					<cfset opt['refreshOnActivate'] = child.getAttribute('refreshOnActivate') />
-					<cfset opt['selected'] = child.getAttribute('selected') />
-					<cfset opt['disabled'] = child.getAttribute('disabled') />
-					<cfset opt['overflow'] = child.getAttribute('overflow') />
-					<cfset opt['style'] = "#child.getAttribute('style')#" />
-					<cfset opt['tabHeight'] = attributes.tabHeight />
-					<cfif len(child.getAttribute('source'))><cfset opt['bind'] = '#randArea#' /></cfif>
-					</cfsilent>									
-					<cfif len(child.getAttribute('source'))>Lucee.Bind.register('#randArea#',#serializeJson(bind)#,false);</cfif>
-					Lucee.Layout.createTab('#attributes.name#','#child.getAttribute('name')#','#child.getAttribute('title')#','',#serializeJson(opt)#);						
-				</cfloop>				
+component extends = "lucee.core.ajax.AjaxBase" {
+	variables._SUPPORTED_JSLIB = 'jquery';
+	variables.supported_types = 'tab'; 
+	variables.children = [];
+	variables.instance.ajaxBinder = createObject('component','lucee.core.ajax.AjaxBinder').init();
+	// Meta data
+	this.metadata.attributetype = "fixed";
+	this.metadata.hint = "";
+	this.metadata.attributes = [
+		"type":			{required:true, type:"string",hint=""},
+		"name":			{required:false, type:"string",default:"_cf_layout_#randRange(1,999999999)#",hint=""},
+		"style":		{required:false, type:"string",default:"",hint=""},
+		"jsLib":  		{required:false, type:"string",default:"jquery",hint=""},
+	/* tab only */
+		"tabHeight" : 	{required:false, type:"numeric",default:50,hint=""},
+		"tabsSelect" :	{required:false, type:"string",default:"",hint=""},
+		"tabsAdd" : 		{required:false, type:"string",default:"",hint=""},
+		"tabsRemove" :	{required:false, type:"string",default:"",hint=""},
+		"tabsEnable" :	{required:false, type:"string",default:"",hint=""},
+		"tabsDisable" : 	{required:false, type:"string",default:"",hint=""},
+		"tabsLoad" : 		{required:false, type:"string",default:"",hint=""}
+	];
+	/**
+	* Invoked after tag is constructed.
+	* @parent The parent cfc custom tag, if there is one.
+	*/
+	public void function init(required boolean hasEndTag, component parent ){
+		var js = "";
+		variables.hasEndTag = arguments.hasEndTag;
+		// cflayout cannot be empty
+		if (not variables.hasEndTag){
+			throw (message = "Tag cflayout must have at least one cflayoutarea child tag.");
+		}
+		super.init();
+	}
+	public boolean function onStartTag(struct attributes,struct caller) {
+		var js = "";
+		variables.attributes = arguments.attributes;
+		// be sure library is supported ( if not we do not have resources to load ) 
+		if (listfind(variables._SUPPORTED_JSLIB,attributes.jsLib) eq 0){
+			throw( message="The js library [#attributes.jsLib#] is not supported for tag CFLAYOUT. Supported libraries are [#variables._SUPPORTED_JSLIB#]");
+		}
+		if (listFindNoCase(variables.supported_types,attributes.type) eq 0){
+			throw( message="type [#attributes.type#] is not a valid value. Valid types are are : #variables.supported_types#");
+		}
+		// do Attributes Check 
+		doAttributesCheck(attributes);
+		// Load Resources 
+		if( not structKeyExists(request,'Lucee_Ajax_Layout_#attributes.type#')){
+			js &= ('
+				<script type = "text/javascript">Lucee.Ajax.importTag("CFLAYOUT-#uCase(attributes.type)#","#attributes.jsLib#");</script>
+			');
+			htmlhead text = "#js#";
+			request['Lucee_Ajax_Layout_#attributes.type#'] = 'loaded';
+		}
+		return variables.hasEndTag;
+	}
+	public boolean function onEndTag(struct attributes,struct caller,string generatedContent) {
+		var children = getChildren();
+		var style = attributes.style;
+		// cflayout cannot be empty 
+		if (arrayIsEmpty(children)){
+			throw (message = "Tag cflayout must have at least one cflayoutarea child tag.");
+		}
+		switch(attributes.type) {
+			case tab:
+			tab = dotab(argumentCollection = arguments);
+		}
+			writeOutput('<div id="#attributes.name#" style="#style#">#tab#</div>');
+		return false;
+	}
+	// attributes 
+	public struct function getAtttributes() {
+		return variables.Atttributes;
+	}
+	public any function getAttribute(required string key) {
+		return variables.attributes[key];
+	}
+	// children
+	public array function getChildren() {
+		return variables.children;
+	}
+	// addChild
+	public void function addChild(required layoutarea child) {
+		children = getchildren();
+		children.add(arguments.child);
+	}
+	// private
+	// doAttributesCheck
+	private void function doAttributesCheck(struct attributes) {
+		switch( attributes.type){
+			case tab:
+			break;
+		}
+	}
+	private string function doTab(struct attributes,struct caller, string generatedContent) {
+		js = "";
+		var tab = "";
+		var rand = "_Lucee_Layout_#randRange(1,99999999)#";
+		var selected = "";
+		var disabled = "" ;
+		var binds = [];
+		var bind = {};
+		var options = [];
+		var opt = {};
+		var layoutOptions = {};
+		 // make the html
+		tab &= '<ul></ul>'
+			cfloop (array = getChildren(),index = 'child'){
+				tab &= '<div id="#child.getAttribute('name')#">#child.getGeneratedContent()#</div>';
 			}
-			Lucee.Events.subscribe(_cf_layout_#rand#,'onLoad');	
-			</script> 
-			</cfoutput>
-		</cfsavecontent><!---
-		---><cfset writeHeader(js,'_cf_layout_#rand#') /><!---
-
-		---><cfreturn stripwhitespace(tab) /><!---
-		
-    ----></cffunction>	
-
-	<!--- getAjaxBinder --->
-	<cffunction name="getAjaxBinder" output="false" returntype="ajaxBinder" access="private">
-		<cfreturn variables.instance.ajaxBinder />    
-	</cffunction>
-				
-</cfcomponent>
+		// append js to head
+		js &= '<script type="text/javascript">';
+		_cf_layout_#rand# = function() {
+			Lucee.Layout.initializeTabLayout('#attributes.name#',#serializeJson(attributes)#);
+			cfloop (array = getChildren(),index = 'child'){
+				var randArea = 'cf_layout_tab_bind_#randRange(1,99999999)#';
+				if (len(child.getAttribute('source'))){
+					js &= ("
+						bind = {};
+						bind = getAjaxBinder().parseBind('url:' & child.getAttribute('source'));
+						bind['bindTo'] = child.getAttribute('name');	
+						bind['listener'] = 'Lucee.Ajax.innerHtml';
+						bind['errorHandler'] = child.getAttribute('onBindError');
+					");	
+				}
+				js &= ("
+					opt = {};
+					opt['refreshOnActivate'] = child.getAttribute('refreshOnActivate');
+					opt['selected'] = child.getAttribute('selected');
+					opt['disabled'] = child.getAttribute('disabled');
+					opt['overflow'] = child.getAttribute('overflow');
+					opt['style'] = '#child.getAttribute('style')#';
+					opt['tabHeight'] = attributes.tabHeight;
+				");	
+				if (len(child.getAttribute('source'))){
+					js &= "opt['bind'] = '#randArea#'";
+				}	
+				if (len(child.getAttribute('source'))){
+					js &= "Lucee.Bind.register('#randArea#',#serializeJson(bind)#,false)";
+				}
+				js &= "Lucee.Layout.createTab('#attributes.name#','#child.getAttribute('name')#','#child.getAttribute('title')#','',#serializeJson(opt)#)";					
+			}
+		}
+		js &= "Lucee.Events.subscribe(_cf_layout_#rand#,'onLoad');</script>";
+		writeHeader(js,'_cf_layout_#rand#')
+		return stripwhitespace(tab);
+	}
+	// getAjaxBinder
+	private ajaxBinder function getAjaxBinder() {
+		return variables.instance.ajaxBinder;
+	}
+}
