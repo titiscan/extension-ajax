@@ -36,7 +36,7 @@
 
     <echo file="${temp}/META-INF/MANIFEST.MF">Manifest-Version: 1.0
 Built-Date: ${NOW}
-version: "${bundleversion}${build.number}"
+version: "${bundleversion}${build.number}${versionAppendix}"
 id: "${id}"
 name: "${label}"
 description: "${description}"
@@ -113,7 +113,7 @@ release-type: ${releaseType}
     </copy> -->
 
     <!-- Zip everything  -->
-     <zip destfile="${target}/${bundlename}-${bundleversion}${build.number}.lex">
+     <zip destfile="${target}/${bundlename}-${bundleversion}${build.number}${versionAppendix}.lex">
         <zipfileset dir="${temp}"/>
     </zip>
 		
