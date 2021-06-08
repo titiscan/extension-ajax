@@ -7,3 +7,5 @@ All these CFML ajax/client side tags are considered [deprecated](https://docs.lu
 Docs: https://docs.lucee.org/categories/ajax.html
 
 Issues: https://luceeserver.atlassian.net/issues/?jql=labels%20%3D%20%22ajax%22
+
+Releases: https://download.lucee.org/#6E2CB28F-98FB-4B51-B6BE6C64ADF35473
