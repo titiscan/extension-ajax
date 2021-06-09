@@ -29,7 +29,7 @@ component name = "ajaxBase" output="no" {
 		js &= '<script type="text/javascript">
 				var _cf_ajaxscriptsrc = "#arguments.scriptsrc#";
 				var _cf_ajaxcsssrc = "#arguments.cssSrc#";
-				var _cf_loadingtexthtml = <div style="text-align: center;"><img src="#arguments.loadersrc#"/></div>;
+				var _cf_loadingtexthtml = ''<div style="text-align: center;"><img src="#arguments.loadersrc#"/></div>'';
 				var _cf_params = #serializeJson(arguments.params)#;
 			</script>
 			<script type="text/javascript" src="#variables.instance.LUCEEJSSRC#LuceeAjax"></script>
