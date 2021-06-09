@@ -9,7 +9,7 @@ component {
 		var relPath = "js/#arguments.lib#.js";
 		if (fileExists( expandPath( relPath ))) {
 			cfcontent(type = "text/javascript");
-			savecontent(variable = "local.result");
+			cfsavecontent(variable = "local.result");
 			include template = relPath;
 			return result;
 		}else{
