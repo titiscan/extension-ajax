@@ -63,7 +63,7 @@ component extends = "lucee.core.ajax.AjaxBase" {
 			throw (message = "Tag cflayout must have at least one cflayoutarea child tag.");
 		}
 		switch(attributes.type) {
-			case tab:
+			case "tab":
 			tab = dotab(argumentCollection = arguments);
 		}
 			writeOutput('<div id="#attributes.name#" style="#style#">#tab#</div>');
@@ -89,7 +89,7 @@ component extends = "lucee.core.ajax.AjaxBase" {
 	// doAttributesCheck
 	private void function doAttributesCheck(struct attributes) {
 		switch( attributes.type){
-			case tab:
+			case "tab":
 			break;
 		}
 	}
@@ -110,39 +110,37 @@ component extends = "lucee.core.ajax.AjaxBase" {
 				tab &= '<div id="#child.getAttribute('name')#">#child.getGeneratedContent()#</div>';
 			}
 		// append js to head
-		js &= '<script type="text/javascript">';
+		js &= '<script type="text/javascript">
 		_cf_layout_#rand# = function() {
-			Lucee.Layout.initializeTabLayout('#attributes.name#',#serializeJson(attributes)#);
+			Lucee.Layout.initializeTabLayout("#attributes.name#",#serializeJson(attributes)#);'
 			cfloop (array = getChildren(),index = 'child'){
 				var randArea = 'cf_layout_tab_bind_#randRange(1,99999999)#';
 				if (len(child.getAttribute('source'))){
-					js &= ("
-						bind = {};
-						bind = getAjaxBinder().parseBind('url:' & child.getAttribute('source'));
-						bind['bindTo'] = child.getAttribute('name');	
-						bind['listener'] = 'Lucee.Ajax.innerHtml';
-						bind['errorHandler'] = child.getAttribute('onBindError');
-					");	
+					var	bind = {};
+					var	bind = getAjaxBinder().parseBind('url:' & child.getAttribute('source'));
+					var	bind['bindTo'] = child.getAttribute('name');	
+					var	bind['listener'] = 'Lucee.Ajax.innerHtml';
+					var	bind['errorHandler'] = child.getAttribute('onBindError');
 				}
-				js &= ("
-					opt = {};
-					opt['refreshOnActivate'] = child.getAttribute('refreshOnActivate');
-					opt['selected'] = child.getAttribute('selected');
-					opt['disabled'] = child.getAttribute('disabled');
-					opt['overflow'] = child.getAttribute('overflow');
-					opt['style'] = '#child.getAttribute('style')#';
-					opt['tabHeight'] = attributes.tabHeight;
-				");	
+				var	opt = {};
+				var	opt['refreshOnActivate'] = child.getAttribute('refreshOnActivate');
+				var	opt['selected'] = child.getAttribute('selected');
+				var	opt['disabled'] = child.getAttribute('disabled');
+				var	opt['overflow'] = child.getAttribute('overflow');
+				var	opt['style'] = '#child.getAttribute('style')#';
+				var	opt['tabHeight'] = attributes.tabHeight;
 				if (len(child.getAttribute('source'))){
-					js &= "opt['bind'] = '#randArea#'";
+					var opt['bind'] = '#randArea#';
 				}	
 				if (len(child.getAttribute('source'))){
-					js &= "Lucee.Bind.register('#randArea#',#serializeJson(bind)#,false)";
+					js &= "Lucee.Bind.register('#randArea#',#serializeJson(bind)#,false);";
 				}
-				js &= "Lucee.Layout.createTab('#attributes.name#','#child.getAttribute('name')#','#child.getAttribute('title')#','',#serializeJson(opt)#)";					
+				js &= "Lucee.Layout.createTab('#attributes.name#','#child.getAttribute("name")#','#child.getAttribute("title")#','',#serializeJson(opt)#);";					
 			}
-		}
-		js &= "Lucee.Events.subscribe(_cf_layout_#rand#,'onLoad');</script>";
+		
+		js &= "}
+		Lucee.Events.subscribe(_cf_layout_#rand#,'onLoad');
+		</script>";
 		writeHeader(js,'_cf_layout_#rand#')
 		return stripwhitespace(tab);
 	}

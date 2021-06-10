@@ -65,7 +65,7 @@ component name = "Map" extends = "mapping-tag.lucee.core.ajax.AjaxBase"{
 		if(len(attributes.markercolor) and len(attributes.markercolor) neq 6){
 			throw message = "Attribute [markercolor] must be in hexadecimal format es : FF0000.";
 		}
-		writeOutput('<div id="#attributes.name#" style="height:#attributes.height#px;width:#attributes.width#px;"</div>');
+		writeOutput('<div id="#attributes.name#" style="height:#attributes.height#px;width:#attributes.width#px;"></div>');
 		if(not variables.hasEndTag){ }
 		return variables.hasEndTag;
 	}
@@ -96,14 +96,18 @@ component name = "Map" extends = "mapping-tag.lucee.core.ajax.AjaxBase"{
 		var options = duplicate(attributes);
 		var children = getChildren();
 		structDelete(options,'name');
-		js &= '<script type = "text/javascript">';
+		js &= '<script type = "text/javascript">;
 		#rand#_on_Load = function(){
-			Lucee.Map.init('#attributes.name#',#this.serializeJsonSafe(options)#);
+			Lucee.Map.init("#attributes.name#",#this.serializeJsonSafe(options)#);'
 			cfloop (array = children,index='child'){
-				js &= "Lucee.Map.addMarker('#attributes.name#',#serializeJsonSafe(child.getAtttributes())#)";
+				js &= "
+				Lucee.Map.addMarker('#attributes.name#',#serializeJsonSafe(child.getAtttributes())#);";
 			}	
-		}		
-		js &= "Lucee.Events.subscribe(#rand#_on_Load,'onLoad');</script>";
+				
+		js &= "
+		}
+		Lucee.Events.subscribe(#rand#_on_Load,'onLoad');
+		</script>";
 		writeHeader(js,'#rand#');
 	}
 	private string function serializeJsonSafe(required str) {

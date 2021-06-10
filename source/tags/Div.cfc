@@ -53,11 +53,12 @@ component extends = "lucee.core.ajax.AjaxBase" {
 		bind['listener'] = "Lucee.Ajax.innerHtml";
 		bind['errorHandler'] = attributes.onBindError;
 		rand = "_Lucee_Bind_#randRange(1,99999999)#";
-		js &= '<script type="text/javascript">'
+		js &= '<script type="text/javascript">
 		#rand# = function(){
-			js &= "Lucee.Bind.register('#attributes.id#',#serializeJson(bind)#,#attributes.bindOnLoad#)";
+			Lucee.Bind.register("#attributes.id#",#serializeJson(bind)#,#attributes.bindOnLoad#);
 		}		
-		js &= 'Lucee.Events.subscribe(#rand#,"onLoad");</script>';
+		Lucee.Events.subscribe(#rand#,"onLoad");
+		</script>';
 		writeHeader(js,'#rand#');
 	}
 	// Private getAjaxBinder
