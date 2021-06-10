@@ -34,6 +34,7 @@ component extends = "lucee.core.ajax.AjaxBase"{
 		super.init();
 	} 
 	public boolean function onStartTag(struct attributes, struct caller) {
+		var js = "";
 		//Be sure library is supported ( if not we do not have resources to load ) 
 		if(listfind(variables._SUPPORTED_JSLIB,attributes.jsLib) eq 0){
 			throw (message = "The js library [#attributes.jsLib#] is not supported for tag CFWINDOW. Supported libraries are [#variables._SUPPORTED_JSLIB#]");
@@ -70,13 +71,16 @@ component extends = "lucee.core.ajax.AjaxBase"{
 		bind['bindTo'] = attributes.name;
 		bind['listener'] = "Lucee.Ajax.innerHtml";
 		bind['errorHandler'] = attributes.onBindError;
-		js &= '<script type="text/javascript">';
-		#rand#_on_Load = function() {
-			if (len(attributes.source)){Lucee.Bind.register('#rand#',#serializeJson(bind)#,false);}
-			js &= "Lucee.Window.create('#attributes.name#','#attributes.title#','#attributes.source#',{modal:#attributes.modal#,refreshOnShow:#attributes.refreshOnShow#,resizable:#attributes.resizable#,draggable:#attributes.draggable#,width:#attributes.width#,height:#attributes.height#,minWidth:#attributes.minWidth#,minHeight:#attributes.minHeight#,initShow:#attributes.initShow#,x:#attributes.x#,y:#attributes.y#,buttons:#attributes.buttons#};";
-			if (len(attributes.source)){,'#rand#'};
-		}		
-		js &= "Lucee.Events.subscribe(#rand#_on_Load,'onLoad');</script>";
+		js &= '<script type="text/javascript">
+		#rand#_on_Load = function() {'
+			if (len(attributes.source)) { js &= "Lucee.Bind.register('#rand#',#serializeJson(bind)#,false);"; }
+			js &= "Lucee.Window.create('#attributes.name#','#attributes.title#','#attributes.source#',{modal:#attributes.modal#,refreshOnShow:#attributes.refreshOnShow#,resizable:#attributes.resizable#,draggable:#attributes.draggable#,width:#attributes.width#,height:#attributes.height#,minWidth:#attributes.minWidth#,minHeight:#attributes.minHeight#,initShow:#attributes.initShow#,x:#attributes.x#,y:#attributes.y#,buttons:#attributes.buttons#}";
+			if (len(attributes.source)){ js &= ",'#rand#'"};
+				
+		js &= ");
+		}
+		Lucee.Events.subscribe(#rand#_on_Load,'onLoad');
+		</script>";
 		writeHeader(js,'#rand#');
 	}
 	// Private 

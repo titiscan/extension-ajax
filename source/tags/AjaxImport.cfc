@@ -47,10 +47,11 @@ component extends = "lucee.core.ajax.AjaxBase" {
 		var js = "";
 		if (len(attributes.tags)){
 			js &= '
-				<script type="text/javascript">;
+				<script type="text/javascript">
 			';
 			cfloop (list = attributes.tags,index = 'el'){
-				js &= "Lucee.Ajax.importTag('#el#')";
+				js &= "Lucee.Ajax.importTag('#el#');
+				";
 			};
 			js &= '</script>';
 			writeHeader(js,'_import_#el#');

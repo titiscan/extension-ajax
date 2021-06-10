@@ -74,11 +74,12 @@ component extends = "lucee.core.ajax.AjaxBase" {
 	public void function doBind(struct attributes,struct caller) {
 		bind = getAjaxBinder().parseBind(bindExpr = attributes.bind,listener = attributes.onSuccess,errorHandler = attributes.onError);
 		rand = "_Lucee_Bind_#randRange(1,99999999)#";
-		js &= '<script type="text/javascript">';
+		js &= '<script type="text/javascript">
 		#rand# = function(){
-			js &= "Lucee.Bind.register('_Lucee_Bind_#randRange(1,99999999)#',#serializeJson(bind)#)";
+			Lucee.Bind.register("_Lucee_Bind_#randRange(1,99999999)#",#serializeJson(bind)#)";
 		}
-		js &= "Lucee.Events.subscribe(#rand#,'onLoad');</script>";
+		Lucee.Events.subscribe(#rand#,"onLoad");
+		</script>';
 		writeHeader(js,'#rand#');
 	}
 	// Private
