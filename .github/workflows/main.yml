@@ -37,7 +37,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ajax-lex
-        path: dist/*.lex
+        path: target/*.lex
     - name: Checkout Lucee
       uses: actions/checkout@v2
       with:
@@ -49,6 +49,6 @@ jobs:
         webroot: ${{ github.workspace }}/lucee/test
         execute: /bootstrap-tests.cfm
         luceeVersion: ${{ env.luceeVersion }}
-        extensionDir: ${{ github.workspace }}/dist
+        extensionDir: ${{ github.workspace }}/target
       env:
         testFilter: ajax
