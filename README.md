@@ -1,5 +1,7 @@
 # Lucee Ajax Extension
 
+[![Java CI](https://github.com/lucee/extension-ajax/actions/workflows/main.yml/badge.svg)](https://github.com/lucee/extension-ajax/actions/workflows/main.yml)
+
 Provides CFML Ajax tags for Lucee
 
 All these CFML ajax/client side tags are considered [deprecated](https://docs.lucee.org/reference/deprecated.html) in Lucee and are only provided for minimal backwards compatibility.
