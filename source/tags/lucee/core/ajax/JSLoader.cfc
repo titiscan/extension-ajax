@@ -10,7 +10,7 @@ component {
 		if (fileExists( expandPath( relPath ))) {
 			cfcontent(type = "text/javascript");
 			cfsavecontent(variable = "local.result")
-			include template = relPath;
+				include template = relPath;
 			return result;
 		}else{
 			cfheader(statuscode = "404");
